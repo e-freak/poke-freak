@@ -17,7 +17,7 @@ packager({
     arch: 'ia32',
     overwrite: true,
     prune: true,
-    asar: false,
+    asar: true,
     ignore: 'bin|cache|src|.+\.bat|\.gitignore|gulpfile\.js|release\.js',
 }, (error) => {
     console.log(error || "Done.");
