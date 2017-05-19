@@ -18,7 +18,7 @@ packager({
     overwrite: true,
     prune: true,
     asar: true,
-    ignore: 'bin|cache|src|.+\.bat|\.gitignore|gulpfile\.js|release\.js',
+    ignore: 'bin|cache|src|.+\.bat|.+\.md|\.gitignore|gulpfile\.js|release\.js',
 }, (error) => {
     console.log(error || "Done.");
 });
