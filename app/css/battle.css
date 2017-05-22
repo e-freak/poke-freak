@@ -97,3 +97,8 @@ span.button-extra:hover {
     background-image: linear-gradient(to right, transparent 50%, rgba(255, 0, 0, 1) 50%);
     border-color: #FF0000;
 }
+
+span.button-extra:active {
+    box-shadow: none;
+    transform: translate3d(300px, 3px, 0);
+}

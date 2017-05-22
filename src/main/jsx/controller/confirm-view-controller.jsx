@@ -53,17 +53,23 @@ export default class ConfirmViewController extends Observable {
         this._notifyAllObserver(Event.CONFIRM_OK, this._parent);
     }
     
-    get parent() {
-        return this._parent;
-    }
-    
     _notifyAllObserver(event, controller) {
         this.notifyAllObserver({ event: event, controller: controller });
     }
     
     _addEvent() {
-        this._view.getElementById('button-confirm-ok').addEventListener('click', this._listenerTable['onClickOKButton']);
-        this._view.getElementById('button-confirm-back').addEventListener('click', this._listenerTable['onClickBackButton']);
+        if (this._disableOK) {
+            this._view.getElementById('button-confirm-ok').className = 'button button-disable';
+        }
+        else {
+            this._view.getElementById('button-confirm-ok').addEventListener('click', this._listenerTable['onClickOKButton']);
+        }
+        if (this._disableCancel) {
+            this._view.getElementById('button-confirm-back').className = 'button button-disable';
+        }
+        else {
+            this._view.getElementById('button-confirm-back').addEventListener('click', this._listenerTable['onClickBackButton']);
+        }
     }
     
     _removeEvent() {

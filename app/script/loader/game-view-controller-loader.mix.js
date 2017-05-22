@@ -13,7 +13,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -93,7 +93,13 @@ var BattleViewController = (function (_Observable) {
 
             switch (confirmType) {
                 case _eventConfirmType2['default'].RESIGN:
-                    // TODO リザイン
+                    this._confirmType = _eventConfirmType2['default'].GAME_SET;
+                    this._removeEvent();
+                    this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createConfirmViewController(false, true));
+                    break;
+                case _eventConfirmType2['default'].GAME_SET:
+                    this._removeEvent();
+                    this._view.location.href = './title.html';
                     break;
                 default:
                     break;
@@ -131,7 +137,10 @@ var BattleViewController = (function (_Observable) {
     }, {
         key: '_createConfirmViewController',
         value: function _createConfirmViewController() {
-            return new _confirmViewController2['default'](this._view, this);
+            var disableOK = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+            var disableCancel = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+            return new _confirmViewController2['default'](this._view, this, disableOK, disableCancel);
         }
     }, {
         key: '_createSkillViewController',
@@ -288,7 +297,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -312,11 +321,16 @@ var ConfirmViewController = (function (_Observable) {
     _inherits(ConfirmViewController, _Observable);
 
     function ConfirmViewController(view, parent) {
+        var disableOK = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+        var disableCancel = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+
         _classCallCheck(this, ConfirmViewController);
 
         _get(Object.getPrototypeOf(ConfirmViewController.prototype), 'constructor', this).call(this);
         this._view = view;
         this._parent = parent;
+        this._disableOK = disableOK;
+        this._disableCancel = disableCancel;
         this._listenerTable = {};
         this._listenerTable['onClickOKButton'] = this.onClickOKButton.bind(this);
         this._listenerTable['onClickBackButton'] = this.onClickBackButton.bind(this);
@@ -362,19 +376,22 @@ var ConfirmViewController = (function (_Observable) {
     }, {
         key: '_addEvent',
         value: function _addEvent() {
-            this._view.getElementById('button-confirm-ok').addEventListener('click', this._listenerTable['onClickOKButton']);
-            this._view.getElementById('button-confirm-back').addEventListener('click', this._listenerTable['onClickBackButton']);
+            if (this._disableOK) {
+                this._view.getElementById('button-confirm-ok').className = 'button button-disable';
+            } else {
+                this._view.getElementById('button-confirm-ok').addEventListener('click', this._listenerTable['onClickOKButton']);
+            }
+            if (this._disableCancel) {
+                this._view.getElementById('button-confirm-back').className = 'button button-disable';
+            } else {
+                this._view.getElementById('button-confirm-back').addEventListener('click', this._listenerTable['onClickBackButton']);
+            }
         }
     }, {
         key: '_removeEvent',
         value: function _removeEvent() {
             this._view.getElementById('button-confirm-ok').removeEventListener('click', this._listenerTable['onClickOKButton']);
             this._view.getElementById('button-confirm-back').removeEventListener('click', this._listenerTable['onClickBackButton']);
-        }
-    }, {
-        key: 'parent',
-        get: function get() {
-            return this._parent;
         }
     }]);
 
@@ -441,15 +458,20 @@ var GameViewController = (function (_Observer) {
             switch (param.event) {
                 case _eventEvent2['default'].CHANGE_VIEW:
                     this._core = param.controller;
-                    this.initialize();
+                    this._core.addObserver(this);
+                    this._core.initialize();
                     break;
                 case _eventEvent2['default'].CONFIRM_OK:
                     this._core = param.controller;
-                    this.initialize();
+                    this._core.addObserver(this);
+                    this._core.initialize();
+                    this._core.onConfirmOK();
                     break;
                 case _eventEvent2['default'].CONFIRM_CANCEL:
                     this._core = param.controller;
-                    this.initialize();
+                    this._core.addObserver(this);
+                    this._core.initialize();
+                    this._core.onConfirmCancel();
                     break;
                 default:
                     break;
@@ -701,7 +723,9 @@ exports['default'] = {
 
     NONE: 'NONE',
 
-    RESIGN: 'RESIGN'
+    RESIGN: 'RESIGN',
+
+    GAME_SET: 'GAME_SET'
 
 };
 module.exports = exports['default'];

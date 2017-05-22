@@ -8,8 +8,10 @@
 
 export default {
     
-    NONE  : 'NONE',
+    NONE    : 'NONE',
     
-    RESIGN: 'RESIGN',
+    RESIGN  : 'RESIGN',
+    
+    GAME_SET: 'GAME_SET',
     
 };

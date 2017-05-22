@@ -13,7 +13,9 @@ exports['default'] = {
 
     NONE: 'NONE',
 
-    RESIGN: 'RESIGN'
+    RESIGN: 'RESIGN',
+
+    GAME_SET: 'GAME_SET'
 
 };
 module.exports = exports['default'];

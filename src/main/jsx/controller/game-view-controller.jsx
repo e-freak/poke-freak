@@ -28,15 +28,20 @@ export default class GameViewController extends Observer {
         switch (param.event) {
         case Event.CHANGE_VIEW:
             this._core = param.controller;
-            this.initialize();
+            this._core.addObserver(this);
+            this._core.initialize();
             break;
         case Event.CONFIRM_OK:
             this._core = param.controller;
-            this.initialize();
+            this._core.addObserver(this);
+            this._core.initialize();
+            this._core.onConfirmOK();
             break;
         case Event.CONFIRM_CANCEL:
             this._core = param.controller;
-            this.initialize();
+            this._core.addObserver(this);
+            this._core.initialize();
+            this._core.onConfirmCancel();
             break;
         default:
             break;

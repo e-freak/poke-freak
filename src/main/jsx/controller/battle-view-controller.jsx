@@ -55,7 +55,13 @@ export default class BattleViewController extends Observable {
         
         switch (confirmType) {
         case ConfirmType.RESIGN:
-            // TODO リザイン
+            this._confirmType = ConfirmType.GAME_SET;
+            this._removeEvent();
+            this._notifyAllObserver(Event.CHANGE_VIEW, this._createConfirmViewController(false, true));
+            break;
+        case ConfirmType.GAME_SET:
+            this._removeEvent();
+            this._view.location.href = './title.html';
             break;
         default:
             break;
@@ -86,8 +92,8 @@ export default class BattleViewController extends Observable {
         return new ChangeViewController(this._view);
     }
     
-    _createConfirmViewController() {
-        return new ConfirmViewController(this._view, this);
+    _createConfirmViewController(disableOK = false, disableCancel = false) {
+        return new ConfirmViewController(this._view, this, disableOK, disableCancel);
     }
     
     _createSkillViewController() {

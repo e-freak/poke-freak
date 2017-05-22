@@ -55,15 +55,20 @@ var GameViewController = (function (_Observer) {
             switch (param.event) {
                 case _eventEvent2['default'].CHANGE_VIEW:
                     this._core = param.controller;
-                    this.initialize();
+                    this._core.addObserver(this);
+                    this._core.initialize();
                     break;
                 case _eventEvent2['default'].CONFIRM_OK:
                     this._core = param.controller;
-                    this.initialize();
+                    this._core.addObserver(this);
+                    this._core.initialize();
+                    this._core.onConfirmOK();
                     break;
                 case _eventEvent2['default'].CONFIRM_CANCEL:
                     this._core = param.controller;
-                    this.initialize();
+                    this._core.addObserver(this);
+                    this._core.initialize();
+                    this._core.onConfirmCancel();
                     break;
                 default:
                     break;
