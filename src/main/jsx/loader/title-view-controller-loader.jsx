@@ -4,7 +4,7 @@
  * @author yuki
  */
 
-import TitleViewController from '../script/controller/title-view-controller';
+import TitleViewController from '../controller/title-view-controller';
 
 
 
