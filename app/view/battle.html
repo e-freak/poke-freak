@@ -5,40 +5,126 @@
         <title>poke-freak</title>
         <link rel="stylesheet" href="../css/default.css" />
         <link rel="stylesheet" href="../css/battle.css" />
+        <link rel="stylesheet" href="../css/hp-bar.css" />
     </head>
     <body>
         <main>
-            <div class="over">
-            </div>
-            <div class="under">
-                <div class="text-message" id="text-message">
+            <div class="info" id="info-field">
+                <div id="select-info">
+                    <div class="inline">
+                        <div class="select-resource">
+                            <span id="player-name"></span>
+                            <div class="inline">
+                                <img class="player-pokemon image-pokemon" id="image-player-pokemon-0" alt="p-pokemon" />
+                                <img class="player-pokemon image-pokemon" id="image-player-pokemon-1" alt="p-pokemon" />
+                            </div>
+                            <div class="inline">
+                                <img class="player-pokemon image-pokemon" id="image-player-pokemon-2" alt="p-pokemon" />
+                                <img class="player-pokemon image-pokemon" id="image-player-pokemon-3" alt="p-pokemon" />
+                            </div>
+                            <div class="inline">
+                                <img class="player-pokemon image-pokemon" id="image-player-pokemon-4" alt="p-pokemon" />
+                                <img class="player-pokemon image-pokemon" id="image-player-pokemon-5" alt="p-pokemon" />
+                            </div>
+                        </div>
+                        <div class="select-resource">
+                            <span id="opponent-name"></span>
+                            <div class="inline">
+                                <img class="image-pokemon" id="image-opponent-pokemon-0" alt="o-pokemon" />
+                                <img class="image-pokemon" id="image-opponent-pokemon-1" alt="o-pokemon" />
+                            </div>
+                            <div class="inline">
+                                <img class="image-pokemon" id="image-opponent-pokemon-2" alt="o-pokemon" />
+                                <img class="image-pokemon" id="image-opponent-pokemon-3" alt="o-pokemon" />
+                            </div>
+                            <div class="inline">
+                                <img class="image-pokemon" id="image-opponent-pokemon-4" alt="o-pokemon" />
+                                <img class="image-pokemon" id="image-opponent-pokemon-5" alt="o-pokemon" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="menu">
-                    <div class="select inline" id="menu-select">
-                        <span class="button" id="button-select-ok">OK</span>
-                        <span class="button" id="button-select-back">Back</span>
-                    </div>
-                    <div class="battle" id="menu-battle">
-                        <div class="inline">
-                            <span class="button" id="button-skill">Skill</span>
-                            <span class="button" id="button-change">Change</span>
+                <div id="battle-info">
+                    <div class="inline">
+                        <div class="battle-status">
+                            <div class="inline-align-right">
+                                <span class="pokemon-name" id="player-pokemon-name"></span>
+                                <span class="pokemon-status-aliment" id="player-pokemon-status-aliment"></span>
+                            </div>
+                            <div class="inline">
+                                <span class="pokemon-element" id="player-pokemon-element-0"></span>
+                                <span class="pokemon-element" id="player-pokemon-element-1"></span>
+                            </div>
+                            <div class="hp-bar" id="player-pokemon-hp-bar">
+                                <div class="hp-value" id="player-pokemon-hp"></div>
+                            </div>
+                            <div class="hp-count">
+                                <div class="hp-count-value" id="player-pokemon-hp-count"></div>
+                            </div>
+                            <hr class="separator" />
+                            <div class="inline-reverse">
+                                <img class="player-pokemon icon-pokemon" id="icon-player-pokemon-0" alt="icon" />
+                                <img class="player-pokemon icon-pokemon" id="icon-player-pokemon-1" alt="icon" />
+                                <img class="player-pokemon icon-pokemon" id="icon-player-pokemon-2" alt="icon" />
+                            </div>
                         </div>
-                        <div class="inline">
-                            <span class="button button-extra" id="button-resign">Resign</span>
+                        <div class="field-status">
+                        </div>
+                        <div class="battle-status">
+                            <div class="inline-align-right">
+                                <span class="pokemon-name" id="opponent-pokemon-name"></span>
+                                <span class="pokemon-status-aliment" id="opponent-pokemon-status-aliment"></span>
+                            </div>
+                            <div class="inline">
+                                <span class="pokemon-element" id="opponent-pokemon-element-0"></span>
+                                <span class="pokemon-element" id="opponent-pokemon-element-1"></span>
+                            </div>
+                            <div class="hp-bar" id="opponent-pokemon-hp-bar">
+                                <div class="hp-value" id="opponent-pokemon-hp"></div>
+                            </div>
+                            <div class="hp-count">
+                                <div class="hp-count-value" id="opponent-pokemon-hp-count"></div>
+                            </div>
+                            <hr class="separator" />
+                            <div class="inline">
+                                <img class="icon-pokemon" id="icon-opponent-pokemon-0" alt="icon" />
+                                <img class="icon-pokemon" id="icon-opponent-pokemon-1" alt="icon" />
+                                <img class="icon-pokemon" id="icon-opponent-pokemon-2" alt="icon" />
+                            </div>
                         </div>
                     </div>
-                    <div class="skill inline" id="menu-skill">
-                        <span class="button" id="button-skill-ok">OK</span>
-                        <span class="button" id="button-skill-back">Back</span>
+                </div>
+                <div id="skill-info">
+                </div>
+                <div id="change-info">
+                </div>
+            </div>
+            <div class="message" id="text-message"></div>
+            <div class="menu">
+                <div id="select-menu">
+                    <span class="button" id="button-select-ok">OK</span>
+                    <span class="button" id="button-select-back">Back</span>
+                </div>
+                <div id="battle-menu">
+                    <div class="inline">
+                        <span class="button" id="button-skill">Skill</span>
+                        <span class="button" id="button-change">Change</span>
                     </div>
-                    <div class="change inline" id="menu-change">
-                        <span class="button" id="button-change-ok">OK</span>
-                        <span class="button" id="button-change-back">Back</span>
+                    <div class="inline">
+                        <span class="button button-extra" id="button-resign">Resign</span>
                     </div>
-                    <div class="confirm inline" id="menu-confirm">
-                        <span class="button" id="button-confirm-ok">OK</span>
-                        <span class="button" id="button-confirm-back">Back</span>
-                    </div>
+                </div>
+                <div id="skill-menu">
+                    <span class="button" id="button-skill-ok">OK</span>
+                    <span class="button" id="button-skill-back">Back</span>
+                </div>
+                <div id="change-menu">
+                    <span class="button" id="button-change-ok">OK</span>
+                    <span class="button" id="button-change-back">Back</span>
+                </div>
+                <div id="confirm-menu">
+                    <span class="button" id="button-confirm-ok">OK</span>
+                    <span class="button" id="button-confirm-back">Back</span>
                 </div>
             </div>
         </main>

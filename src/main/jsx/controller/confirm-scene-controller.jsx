@@ -1,17 +1,16 @@
 /**
- * confirm-view-controller.jsx
+ * confirm-scene-controller.jsx
  * 
  * @author yuki
  */
 
-import Observable from '../util/observable';
+import AbstractSceneController from './abstract-scene-controller';
 
-import BattleViewController from './battle-view-controller';
 import Event from '../event/event';
 
 
 
-export default class ConfirmViewController extends Observable {
+export default class ConfirmSceneController extends AbstractSceneController {
     
     constructor(view, parent, disableOK = false, disableCancel = false) {
         super();
@@ -24,22 +23,12 @@ export default class ConfirmViewController extends Observable {
         this._listenerTable['onClickBackButton'] = this.onClickBackButton.bind(this);
     }
     
-    initialize() {
-        Array.prototype.forEach.call(this._view.getElementsByClassName('select'), (element) => {
-            element.style.display = 'none';
-        });
-        Array.prototype.forEach.call(this._view.getElementsByClassName('battle'), (element) => {
-            element.style.display = 'none';
-        });
-        Array.prototype.forEach.call(this._view.getElementsByClassName('skill'), (element) => {
-            element.style.display = 'none';
-        });
-        Array.prototype.forEach.call(this._view.getElementsByClassName('change'), (element) => {
-            element.style.display = 'none';
-        });
-        Array.prototype.forEach.call(this._view.getElementsByClassName('confirm'), (element) => {
-            element.style.display = 'inline';
-        });
+    initialize(master) {
+        this._view.getElementById('select-menu').style.display = 'none';
+        this._view.getElementById('battle-menu').style.display = 'none';
+        this._view.getElementById('skill-menu').style.display = 'none';
+        this._view.getElementById('change-menu').style.display = 'none';
+        this._view.getElementById('confirm-menu').style.display = 'inline';
         this._addEvent();
     }
     
@@ -51,10 +40,6 @@ export default class ConfirmViewController extends Observable {
     onClickOKButton() {
         this._removeEvent();
         this._notifyAllObserver(Event.CONFIRM_OK, this._parent);
-    }
-    
-    _notifyAllObserver(event, controller) {
-        this.notifyAllObserver({ event: event, controller: controller });
     }
     
     _addEvent() {

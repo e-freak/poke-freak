@@ -18,9 +18,25 @@ body {
     font-family: 'Meiryo UI', 'メイリオ', 'Sans-serif';
 }
 
+div.invisible {
+    display: none;
+}
+
 div.inline {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+div.inline-reverse {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row-reverse; 
+}
+
+div.inline-align-right {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}

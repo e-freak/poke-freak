@@ -1,5 +1,5 @@
 /**
- * battle-view-controller.jsx
+ * battle-scene-controller.jsx
  * 
  * @author yuki
  */
@@ -20,84 +20,104 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _utilObservable = require('../util/observable');
+var _abstractSceneController = require('./abstract-scene-controller');
 
-var _utilObservable2 = _interopRequireDefault(_utilObservable);
+var _abstractSceneController2 = _interopRequireDefault(_abstractSceneController);
 
-var _changeViewController = require('./change-view-controller');
+var _changeSceneController = require('./change-scene-controller');
 
-var _changeViewController2 = _interopRequireDefault(_changeViewController);
+var _changeSceneController2 = _interopRequireDefault(_changeSceneController);
 
 var _eventConfirmType = require('../event/confirm-type');
 
 var _eventConfirmType2 = _interopRequireDefault(_eventConfirmType);
 
-var _confirmViewController = require('./confirm-view-controller');
+var _confirmSceneController = require('./confirm-scene-controller');
 
-var _confirmViewController2 = _interopRequireDefault(_confirmViewController);
+var _confirmSceneController2 = _interopRequireDefault(_confirmSceneController);
 
 var _eventEvent = require('../event/event');
 
 var _eventEvent2 = _interopRequireDefault(_eventEvent);
 
-var _skillViewController = require('./skill-view-controller');
+var _skillSceneController = require('./skill-scene-controller');
 
-var _skillViewController2 = _interopRequireDefault(_skillViewController);
+var _skillSceneController2 = _interopRequireDefault(_skillSceneController);
 
-var BattleViewController = (function (_Observable) {
-    _inherits(BattleViewController, _Observable);
+var BattleSceneController = (function (_AbstractSceneController) {
+    _inherits(BattleSceneController, _AbstractSceneController);
 
-    function BattleViewController(view) {
-        _classCallCheck(this, BattleViewController);
+    function BattleSceneController(view) {
+        _classCallCheck(this, BattleSceneController);
 
-        _get(Object.getPrototypeOf(BattleViewController.prototype), 'constructor', this).call(this);
+        _get(Object.getPrototypeOf(BattleSceneController.prototype), 'constructor', this).call(this);
         this._view = view;
-        this._confirmType = _eventConfirmType2['default'].NONE;
         this._listenerTable = {};
         this._listenerTable['onClickSkillButton'] = this.onClickSkillButton.bind(this);
         this._listenerTable['onClickChangeButton'] = this.onClickChangeButton.bind(this);
         this._listenerTable['onClickResignButton'] = this.onClickResignButton.bind(this);
     }
 
-    _createClass(BattleViewController, [{
+    _createClass(BattleSceneController, [{
         key: 'initialize',
-        value: function initialize() {
-            Array.prototype.forEach.call(this._view.getElementsByClassName('select'), function (element) {
-                element.style.display = 'none';
+        value: function initialize(master) {
+            var _this = this;
+
+            this._view.getElementById('select-info').style.display = 'none';
+            this._view.getElementById('battle-info').style.display = 'inline';
+            this._view.getElementById('skill-info').style.display = 'none';
+            this._view.getElementById('change-info').style.display = 'none';
+            this._view.getElementById('select-menu').style.display = 'none';
+            this._view.getElementById('battle-menu').style.display = 'inline';
+            this._view.getElementById('skill-menu').style.display = 'none';
+            this._view.getElementById('change-menu').style.display = 'none';
+            this._view.getElementById('confirm-menu').style.display = 'none';
+            this._changeFieldHeight(this._view.getElementById('info-field'), 200);
+            this._changeFieldHeight(this._view.getElementById('text-message'), 360);
+            Array.prototype.forEach.call(this._view.getElementsByClassName('icon-pokemon'), function (image) {
+                image.onerror = function () {
+                    image.src = '../image/dummy.jpg';
+                    image.onerror = undefined;
+                };
             });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('battle'), function (element) {
-                element.style.display = 'inline';
+
+            master.getSelectedPokemonList(master.PLAYER_ID).forEach(function (pokemon, index) {
+                var imageID = 'icon-player-pokemon-' + index;
+                _this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
             });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('skill'), function (element) {
-                element.style.display = 'none';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('change'), function (element) {
-                element.style.display = 'none';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('confirm'), function (element) {
-                element.style.display = 'none';
+            master.getSelectedPokemonList(master.OPPONENT_ID).forEach(function (pokemon, index) {
+                var imageID = 'icon-opponent-pokemon-' + index;
+                _this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
             });
             this._addEvent();
         }
     }, {
         key: 'onConfirmCancel',
         value: function onConfirmCancel() {
+            this._view.getElementById('select-menu').style.display = 'none';
+            this._view.getElementById('battle-menu').style.display = 'inline';
+            this._view.getElementById('skill-menu').style.display = 'none';
+            this._view.getElementById('change-menu').style.display = 'none';
+            this._view.getElementById('confirm-menu').style.display = 'none';
             this._clearConfirm();
         }
     }, {
         key: 'onConfirmOK',
         value: function onConfirmOK() {
+            this._view.getElementById('select-menu').style.display = 'none';
+            this._view.getElementById('battle-menu').style.display = 'inline';
+            this._view.getElementById('skill-menu').style.display = 'none';
+            this._view.getElementById('change-menu').style.display = 'none';
+            this._view.getElementById('confirm-menu').style.display = 'none';
             var confirmType = this._confirmType;
             this._clearConfirm();
 
             switch (confirmType) {
                 case _eventConfirmType2['default'].RESIGN:
                     this._confirmType = _eventConfirmType2['default'].GAME_SET;
-                    this._removeEvent();
-                    this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createConfirmViewController(false, true));
+                    this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createConfirmSceneController(false, true));
                     break;
                 case _eventConfirmType2['default'].GAME_SET:
-                    this._removeEvent();
                     this._view.location.href = './title.html';
                     break;
                 default:
@@ -107,49 +127,36 @@ var BattleViewController = (function (_Observable) {
     }, {
         key: 'onClickChangeButton',
         value: function onClickChangeButton() {
-            this._removeEvent();
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createChangeViewController());
+            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createChangeSceneController());
         }
     }, {
         key: 'onClickResignButton',
         value: function onClickResignButton() {
             this._confirmType = _eventConfirmType2['default'].RESIGN;
-            this._removeEvent();
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createConfirmViewController());
+            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createConfirmSceneController());
         }
     }, {
         key: 'onClickSkillButton',
         value: function onClickSkillButton() {
-            this._removeEvent();
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createSkillViewController());
+            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createSkillSceneController());
         }
     }, {
-        key: '_clearConfirm',
-        value: function _clearConfirm() {
-            this._confirmType = _eventConfirmType2['default'].NONE;
+        key: '_createChangeSceneController',
+        value: function _createChangeSceneController() {
+            return new _changeSceneController2['default'](this._view);
         }
     }, {
-        key: '_createChangeViewController',
-        value: function _createChangeViewController() {
-            return new _changeViewController2['default'](this._view);
-        }
-    }, {
-        key: '_createConfirmViewController',
-        value: function _createConfirmViewController() {
+        key: '_createConfirmSceneController',
+        value: function _createConfirmSceneController() {
             var disableOK = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
             var disableCancel = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
 
-            return new _confirmViewController2['default'](this._view, this, disableOK, disableCancel);
+            return new _confirmSceneController2['default'](this._view, this, disableOK, disableCancel);
         }
     }, {
-        key: '_createSkillViewController',
-        value: function _createSkillViewController() {
-            return new _skillViewController2['default'](this._view);
-        }
-    }, {
-        key: '_notifyAllObserver',
-        value: function _notifyAllObserver(event, controller) {
-            this.notifyAllObserver({ event: event, controller: controller });
+        key: '_createSkillSceneController',
+        value: function _createSkillSceneController() {
+            return new _skillSceneController2['default'](this._view);
         }
     }, {
         key: '_addEvent',
@@ -158,17 +165,10 @@ var BattleViewController = (function (_Observable) {
             this._view.getElementById('button-change').addEventListener('click', this._listenerTable['onClickChangeButton']);
             this._view.getElementById('button-resign').addEventListener('click', this._listenerTable['onClickResignButton']);
         }
-    }, {
-        key: '_removeEvent',
-        value: function _removeEvent() {
-            this._view.getElementById('button-skill').removeEventListener('click', this._listenerTable['onClickSkillButton']);
-            this._view.getElementById('button-change').removeEventListener('click', this._listenerTable['onClickChangeButton']);
-            this._view.getElementById('button-resign').removeEventListener('click', this._listenerTable['onClickResignButton']);
-        }
     }]);
 
-    return BattleViewController;
-})(_utilObservable2['default']);
+    return BattleSceneController;
+})(_abstractSceneController2['default']);
 
-exports['default'] = BattleViewController;
+exports['default'] = BattleSceneController;
 module.exports = exports['default'];

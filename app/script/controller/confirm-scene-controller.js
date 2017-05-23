@@ -1,5 +1,5 @@
 /**
- * confirm-view-controller.jsx
+ * confirm-scene-controller.jsx
  * 
  * @author yuki
  */
@@ -20,28 +20,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _utilObservable = require('../util/observable');
+var _abstractSceneController = require('./abstract-scene-controller');
 
-var _utilObservable2 = _interopRequireDefault(_utilObservable);
-
-var _battleViewController = require('./battle-view-controller');
-
-var _battleViewController2 = _interopRequireDefault(_battleViewController);
+var _abstractSceneController2 = _interopRequireDefault(_abstractSceneController);
 
 var _eventEvent = require('../event/event');
 
 var _eventEvent2 = _interopRequireDefault(_eventEvent);
 
-var ConfirmViewController = (function (_Observable) {
-    _inherits(ConfirmViewController, _Observable);
+var ConfirmSceneController = (function (_AbstractSceneController) {
+    _inherits(ConfirmSceneController, _AbstractSceneController);
 
-    function ConfirmViewController(view, parent) {
+    function ConfirmSceneController(view, parent) {
         var disableOK = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
         var disableCancel = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
-        _classCallCheck(this, ConfirmViewController);
+        _classCallCheck(this, ConfirmSceneController);
 
-        _get(Object.getPrototypeOf(ConfirmViewController.prototype), 'constructor', this).call(this);
+        _get(Object.getPrototypeOf(ConfirmSceneController.prototype), 'constructor', this).call(this);
         this._view = view;
         this._parent = parent;
         this._disableOK = disableOK;
@@ -51,24 +47,14 @@ var ConfirmViewController = (function (_Observable) {
         this._listenerTable['onClickBackButton'] = this.onClickBackButton.bind(this);
     }
 
-    _createClass(ConfirmViewController, [{
+    _createClass(ConfirmSceneController, [{
         key: 'initialize',
-        value: function initialize() {
-            Array.prototype.forEach.call(this._view.getElementsByClassName('select'), function (element) {
-                element.style.display = 'none';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('battle'), function (element) {
-                element.style.display = 'none';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('skill'), function (element) {
-                element.style.display = 'none';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('change'), function (element) {
-                element.style.display = 'none';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('confirm'), function (element) {
-                element.style.display = 'inline';
-            });
+        value: function initialize(master) {
+            this._view.getElementById('select-menu').style.display = 'none';
+            this._view.getElementById('battle-menu').style.display = 'none';
+            this._view.getElementById('skill-menu').style.display = 'none';
+            this._view.getElementById('change-menu').style.display = 'none';
+            this._view.getElementById('confirm-menu').style.display = 'inline';
             this._addEvent();
         }
     }, {
@@ -82,11 +68,6 @@ var ConfirmViewController = (function (_Observable) {
         value: function onClickOKButton() {
             this._removeEvent();
             this._notifyAllObserver(_eventEvent2['default'].CONFIRM_OK, this._parent);
-        }
-    }, {
-        key: '_notifyAllObserver',
-        value: function _notifyAllObserver(event, controller) {
-            this.notifyAllObserver({ event: event, controller: controller });
         }
     }, {
         key: '_addEvent',
@@ -110,8 +91,8 @@ var ConfirmViewController = (function (_Observable) {
         }
     }]);
 
-    return ConfirmViewController;
-})(_utilObservable2['default']);
+    return ConfirmSceneController;
+})(_abstractSceneController2['default']);
 
-exports['default'] = ConfirmViewController;
+exports['default'] = ConfirmSceneController;
 module.exports = exports['default'];

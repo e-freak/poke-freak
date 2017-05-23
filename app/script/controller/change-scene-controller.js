@@ -1,5 +1,5 @@
 /**
- * change-view-controller.jsx
+ * change-scene-controller.jsx
  * 
  * @author yuki
  */
@@ -20,72 +20,61 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var _utilObservable = require('../util/observable');
+var _abstractSceneController = require('./abstract-scene-controller');
 
-var _utilObservable2 = _interopRequireDefault(_utilObservable);
+var _abstractSceneController2 = _interopRequireDefault(_abstractSceneController);
 
-var _battleViewController = require('./battle-view-controller');
+var _battleSceneController = require('./battle-scene-controller');
 
-var _battleViewController2 = _interopRequireDefault(_battleViewController);
+var _battleSceneController2 = _interopRequireDefault(_battleSceneController);
 
 var _eventEvent = require('../event/event');
 
 var _eventEvent2 = _interopRequireDefault(_eventEvent);
 
-var ChangeViewController = (function (_Observable) {
-    _inherits(ChangeViewController, _Observable);
+var ChangeSceneController = (function (_AbstractSceneController) {
+    _inherits(ChangeSceneController, _AbstractSceneController);
 
-    function ChangeViewController(view) {
-        _classCallCheck(this, ChangeViewController);
+    function ChangeSceneController(view) {
+        _classCallCheck(this, ChangeSceneController);
 
-        _get(Object.getPrototypeOf(ChangeViewController.prototype), 'constructor', this).call(this);
+        _get(Object.getPrototypeOf(ChangeSceneController.prototype), 'constructor', this).call(this);
         this._view = view;
         this._listenerTable = {};
         this._listenerTable['onClickOKButton'] = this.onClickOKButton.bind(this);
         this._listenerTable['onClickBackButton'] = this.onClickBackButton.bind(this);
     }
 
-    _createClass(ChangeViewController, [{
+    _createClass(ChangeSceneController, [{
         key: 'initialize',
-        value: function initialize() {
-            Array.prototype.forEach.call(this._view.getElementsByClassName('select'), function (element) {
-                element.style.display = 'none';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('battle'), function (element) {
-                element.style.display = 'none';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('skill'), function (element) {
-                element.style.display = 'none';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('change'), function (element) {
-                element.style.display = 'inline';
-            });
-            Array.prototype.forEach.call(this._view.getElementsByClassName('confirm'), function (element) {
-                element.style.display = 'none';
-            });
+        value: function initialize(master) {
+            this._view.getElementById('select-info').style.display = 'none';
+            this._view.getElementById('battle-info').style.display = 'inline';
+            this._view.getElementById('skill-info').style.display = 'none';
+            this._view.getElementById('change-info').style.display = 'inline';
+            this._view.getElementById('select-menu').style.display = 'none';
+            this._view.getElementById('battle-menu').style.display = 'none';
+            this._view.getElementById('skill-menu').style.display = 'none';
+            this._view.getElementById('change-menu').style.display = 'inline';
+            this._view.getElementById('confirm-menu').style.display = 'none';
+            this._changeFieldHeight(this._view.getElementById('info-field'), 460);
+            this._changeFieldHeight(this._view.getElementById('text-message'), 100);
             this._addEvent();
         }
     }, {
         key: 'onClickBackButton',
         value: function onClickBackButton() {
-            this._removeEvent();
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createBattleViewController());
+            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createBattleSceneController());
         }
     }, {
         key: 'onClickOKButton',
         value: function onClickOKButton() {
-            this._removeEvent();
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createBattleViewController());
+            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createBattleSceneController());
         }
     }, {
-        key: '_createBattleViewController',
-        value: function _createBattleViewController() {
-            return new _battleViewController2['default'](this._view);
-        }
-    }, {
-        key: '_notifyAllObserver',
-        value: function _notifyAllObserver(event, controller) {
-            this.notifyAllObserver({ event: event, controller: controller });
+        key: '_createBattleSceneController',
+        value: function _createBattleSceneController() {
+            return new _battleSceneController2['default'](this._view);
         }
     }, {
         key: '_addEvent',
@@ -93,16 +82,10 @@ var ChangeViewController = (function (_Observable) {
             this._view.getElementById('button-change-ok').addEventListener('click', this._listenerTable['onClickOKButton']);
             this._view.getElementById('button-change-back').addEventListener('click', this._listenerTable['onClickBackButton']);
         }
-    }, {
-        key: '_removeEvent',
-        value: function _removeEvent() {
-            this._view.getElementById('button-change-ok').removeEventListener('click', this._listenerTable['onClickOKButton']);
-            this._view.getElementById('button-change-back').removeEventListener('click', this._listenerTable['onClickBackButton']);
-        }
     }]);
 
-    return ChangeViewController;
-})(_utilObservable2['default']);
+    return ChangeSceneController;
+})(_abstractSceneController2['default']);
 
-exports['default'] = ChangeViewController;
+exports['default'] = ChangeSceneController;
 module.exports = exports['default'];

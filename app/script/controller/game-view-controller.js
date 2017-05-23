@@ -28,9 +28,13 @@ var _eventEvent = require('../event/event');
 
 var _eventEvent2 = _interopRequireDefault(_eventEvent);
 
-var _selectViewController = require('./select-view-controller');
+var _pokemonMockGameMaster = require('../pokemon/mock-game-master');
 
-var _selectViewController2 = _interopRequireDefault(_selectViewController);
+var _pokemonMockGameMaster2 = _interopRequireDefault(_pokemonMockGameMaster);
+
+var _selectSceneController = require('./select-scene-controller');
+
+var _selectSceneController2 = _interopRequireDefault(_selectSceneController);
 
 var GameViewController = (function (_Observer) {
     _inherits(GameViewController, _Observer);
@@ -40,44 +44,48 @@ var GameViewController = (function (_Observer) {
 
         _get(Object.getPrototypeOf(GameViewController.prototype), 'constructor', this).call(this);
         this._view = view;
-        this._core = this._createFirstViewController(view);
+        this._scene = this._createFirstSceneController(view);
+        this._master = this._createGameMaster();
     }
 
     _createClass(GameViewController, [{
         key: 'initialize',
         value: function initialize() {
-            this._core.addObserver(this);
-            this._core.initialize();
+            this._scene.addObserver(this);
+            this._scene.initialize(this._master);
         }
     }, {
         key: 'update',
         value: function update(target, param) {
             switch (param.event) {
                 case _eventEvent2['default'].CHANGE_VIEW:
-                    this._core = param.controller;
-                    this._core.addObserver(this);
-                    this._core.initialize();
+                    this._scene = param.scene;
+                    this._scene.addObserver(this);
+                    this._scene.initialize(this._master);
                     break;
                 case _eventEvent2['default'].CONFIRM_OK:
-                    this._core = param.controller;
-                    this._core.addObserver(this);
-                    this._core.initialize();
-                    this._core.onConfirmOK();
+                    this._scene = param.scene;
+                    this._scene.addObserver(this);
+                    this._scene.onConfirmOK();
                     break;
                 case _eventEvent2['default'].CONFIRM_CANCEL:
-                    this._core = param.controller;
-                    this._core.addObserver(this);
-                    this._core.initialize();
-                    this._core.onConfirmCancel();
+                    this._scene = param.scene;
+                    this._scene.addObserver(this);
+                    this._scene.onConfirmCancel();
                     break;
                 default:
                     break;
             }
         }
     }, {
-        key: '_createFirstViewController',
-        value: function _createFirstViewController(view) {
-            return new _selectViewController2['default'](view);
+        key: '_createFirstSceneController',
+        value: function _createFirstSceneController(view) {
+            return new _selectSceneController2['default'](view);
+        }
+    }, {
+        key: '_createGameMaster',
+        value: function _createGameMaster() {
+            return new _pokemonMockGameMaster2['default']();
         }
     }]);
 
