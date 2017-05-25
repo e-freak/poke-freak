@@ -8,10 +8,18 @@
 
 export default {
     
-    CHANGE_VIEW   : 'CHANGE_VIEW',
+    TO_SELECT_SCENE : 'TO_SELECT_SCENE',
     
-    CONFIRM_OK    : 'CONFIRM_OK',
+    TO_BATTLE_SCENE : 'TO_BATTLE_SCENE',
     
-    CONFIRM_CANCEL: 'CONFIRM_CANCEL',
+    TO_SKILL_SCENE  : 'TO_SKILL_SCENE',
+    
+    TO_CHANGE_SCENE : 'TO_CHANGE_SCENE',
+    
+    TO_CONFIRM_SCENE: 'TO_CONFIRM_SCENE',
+    
+    CONFIRM_OK      : 'CONFIRM_OK',
+    
+    CONFIRM_CANCEL  : 'CONFIRM_CANCEL',
     
 };

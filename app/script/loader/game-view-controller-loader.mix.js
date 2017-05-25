@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
- * abstract-scene-controller.jsx
+ * game-menu-controller.jsx
  * 
  * @author yuki
  */
@@ -13,7 +13,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -29,30 +29,286 @@ var _eventConfirmType = require('../event/confirm-type');
 
 var _eventConfirmType2 = _interopRequireDefault(_eventConfirmType);
 
-var AbstractSceneController = (function (_Observable) {
-    _inherits(AbstractSceneController, _Observable);
+var _eventEvent = require('../event/event');
 
-    function AbstractSceneController() {
-        _classCallCheck(this, AbstractSceneController);
+var _eventEvent2 = _interopRequireDefault(_eventEvent);
 
-        _get(Object.getPrototypeOf(AbstractSceneController.prototype), 'constructor', this).call(this);
+var _sceneType = require('./scene-type');
+
+var _sceneType2 = _interopRequireDefault(_sceneType);
+
+var GameMenuController = (function (_Observable) {
+    _inherits(GameMenuController, _Observable);
+
+    function GameMenuController(view) {
+        _classCallCheck(this, GameMenuController);
+
+        _get(Object.getPrototypeOf(GameMenuController.prototype), 'constructor', this).call(this);
+        this._view = view;
         this._confirmType = _eventConfirmType2['default'].NONE;
     }
 
-    _createClass(AbstractSceneController, [{
-        key: 'initialize',
-        value: function initialize(master) {
-            throw new Error("Not implemented : initialize()");
+    _createClass(GameMenuController, [{
+        key: 'changeScene',
+        value: function changeScene(scene) {
+            var disableOKButton = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
+            var disableCancelButton = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+
+            switch (scene) {
+                case _sceneType2['default'].SELECT:
+                    this._changeToSelectScene();
+                    break;
+                case _sceneType2['default'].BATTLE:
+                    this._changeToBattleScene();
+                    break;
+                case _sceneType2['default'].SKILL:
+                    this._changeToSkillScene();
+                    break;
+                case _sceneType2['default'].CHANGE:
+                    this._changeToChangeScene();
+                    break;
+                case _sceneType2['default'].CONFIRM:
+                    this._changeToConfirmScene(disableOKButton, disableCancelButton);
+                    break;
+                default:
+                    throw new Error('Unknown scene : ' + scene);
+            }
         }
     }, {
         key: 'onConfirmCancel',
-        value: function onConfirmCancel() {
-            this._clearConfirm();
+        value: function onConfirmCancel(confirmType) {
+            switch (confirmType) {
+                case _eventConfirmType2['default'].RESIGN:
+                    this._confirmType = _eventConfirmType2['default'].NONE;
+                    this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+                    break;
+                case _eventConfirmType2['default'].GAME_SET:
+                    // do nothing
+                    break;
+                default:
+                    throw new Error('Unknown confirm type : ' + confirmType);
+            }
         }
     }, {
         key: 'onConfirmOK',
-        value: function onConfirmOK() {
-            this._clearConfirm();
+        value: function onConfirmOK(confirmType) {
+            switch (confirmType) {
+                case _eventConfirmType2['default'].RESIGN:
+                    this._confirmType = _eventConfirmType2['default'].GAME_SET;
+                    this._notifyAllObserver(_eventEvent2['default'].TO_CONFIRM_SCENE, false, true);
+                    break;
+                case _eventConfirmType2['default'].GAME_SET:
+                    this._view.location.href = './title.html';
+                    break;
+                default:
+                    throw new Error('Unknown confirm type : ' + confirmType);
+            }
+        }
+    }, {
+        key: 'onClickBattleChangeButton',
+        value: function onClickBattleChangeButton() {
+            this._notifyAllObserver(_eventEvent2['default'].TO_CHANGE_SCENE);
+        }
+    }, {
+        key: 'onClickBattleResignButton',
+        value: function onClickBattleResignButton() {
+            this._confirmType = _eventConfirmType2['default'].RESIGN;
+            this._notifyAllObserver(_eventEvent2['default'].TO_CONFIRM_SCENE);
+        }
+    }, {
+        key: 'onClickBattleSkillButton',
+        value: function onClickBattleSkillButton() {
+            this._notifyAllObserver(_eventEvent2['default'].TO_SKILL_SCENE);
+        }
+    }, {
+        key: 'onClickChangeBackButton',
+        value: function onClickChangeBackButton() {
+            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+        }
+    }, {
+        key: 'onClickChangeOKButton',
+        value: function onClickChangeOKButton() {
+            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+        }
+    }, {
+        key: 'onClickConfirmBackButton',
+        value: function onClickConfirmBackButton() {
+            this._notifyAllObserver(_eventEvent2['default'].CONFIRM_CANCEL);
+        }
+    }, {
+        key: 'onClickConfirmOKButton',
+        value: function onClickConfirmOKButton() {
+            this._notifyAllObserver(_eventEvent2['default'].CONFIRM_OK);
+        }
+    }, {
+        key: 'onClickSelectBackButton',
+        value: function onClickSelectBackButton() {
+            this._view.location.href = './title.html';
+        }
+    }, {
+        key: 'onClickSelectOKButton',
+        value: function onClickSelectOKButton() {
+            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+        }
+    }, {
+        key: 'onClickSkillBackButton',
+        value: function onClickSkillBackButton() {
+            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+        }
+    }, {
+        key: 'onClickSkillOKButton',
+        value: function onClickSkillOKButton() {
+            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+        }
+    }, {
+        key: '_activateButton',
+        value: function _activateButton(buttonID, listener) {
+            this._view.getElementById(buttonID).className = 'button';
+            this._view.getElementById(buttonID).addEventListener('click', listener);
+        }
+    }, {
+        key: '_deactivateButton',
+        value: function _deactivateButton(buttonID) {
+            this._view.getElementById(buttonID).className = 'button button-disable';
+            this._removeAllEventListener(this._view.getElementById(buttonID));
+        }
+    }, {
+        key: '_changeToBattleScene',
+        value: function _changeToBattleScene() {
+            this._view.getElementById('default-menu').style.display = 'none';
+            this._view.getElementById('battle-menu').style.display = 'inline';
+            this._view.getElementById('button-skill').addEventListener('click', this.onClickBattleSkillButton.bind(this));
+            this._view.getElementById('button-change').addEventListener('click', this.onClickBattleChangeButton.bind(this));
+            this._view.getElementById('button-resign').addEventListener('click', this.onClickBattleResignButton.bind(this));
+        }
+    }, {
+        key: '_changeToChangeScene',
+        value: function _changeToChangeScene() {
+            this._view.getElementById('default-menu').style.display = 'inline';
+            this._view.getElementById('battle-menu').style.display = 'none';
+            this._deactivateButton('button-ok');
+            this._activateButton('button-back', this.onClickChangeBackButton.bind(this));
+        }
+    }, {
+        key: '_changeToConfirmScene',
+        value: function _changeToConfirmScene(disableOKButton, disableCancelButton) {
+            this._view.getElementById('default-menu').style.display = 'inline';
+            this._view.getElementById('battle-menu').style.display = 'none';
+            if (disableOKButton) {
+                this._deactivateButton('button-ok');
+            } else {
+                this._activateButton('button-ok', this.onClickConfirmOKButton.bind(this));
+            }
+            if (disableCancelButton) {
+                this._deactivateButton('button-back');
+            } else {
+                this._activateButton('button-back', this.onClickConfirmBackButton.bind(this));
+            }
+        }
+    }, {
+        key: '_changeToSelectScene',
+        value: function _changeToSelectScene() {
+            this._view.getElementById('default-menu').style.display = 'inline';
+            this._view.getElementById('battle-menu').style.display = 'none';
+            this._deactivateButton('button-ok');
+            this._activateButton('button-back', this.onClickSelectBackButton.bind(this));
+
+            // デバッグ用に暫定でボタンを有効化
+            this._view.getElementById('button-ok').addEventListener('click', this.onClickSelectOKButton.bind(this));
+        }
+    }, {
+        key: '_changeToSkillScene',
+        value: function _changeToSkillScene() {
+            this._view.getElementById('default-menu').style.display = 'inline';
+            this._view.getElementById('battle-menu').style.display = 'none';
+            this._deactivateButton('button-ok');
+            this._activateButton('button-back', this.onClickSkillBackButton.bind(this));
+        }
+    }, {
+        key: '_notifyAllObserver',
+        value: function _notifyAllObserver(event) {
+            var disableOKButton = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+            var disableCancelButton = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
+            this._removeAllEventListener(this._view.getElementById('button-ok'));
+            this._removeAllEventListener(this._view.getElementById('button-back'));
+            this._removeAllEventListener(this._view.getElementById('button-skill'));
+            this._removeAllEventListener(this._view.getElementById('button-change'));
+            this._removeAllEventListener(this._view.getElementById('button-resign'));
+            this.notifyAllObserver({ event: event, disableOKButton: disableOKButton, disableCancelButton: disableCancelButton });
+        }
+    }, {
+        key: '_removeAllEventListener',
+        value: function _removeAllEventListener(element) {
+            var parent = element.parentNode;
+            parent.removeChild(element);
+            parent.appendChild(element.cloneNode(true));
+        }
+    }, {
+        key: 'confirmType',
+        get: function get() {
+            return this._confirmType;
+        }
+    }]);
+
+    return GameMenuController;
+})(_utilObservable2['default']);
+
+exports['default'] = GameMenuController;
+module.exports = exports['default'];
+},{"../event/confirm-type":5,"../event/event":6,"../util/observable":9,"./scene-type":4}],2:[function(require,module,exports){
+/**
+ * game-scene-controller.jsx
+ * 
+ * @author yuki
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+    value: true
+});
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+var _sceneType = require('./scene-type');
+
+var _sceneType2 = _interopRequireDefault(_sceneType);
+
+var GameSceneController = (function () {
+    function GameSceneController(view) {
+        _classCallCheck(this, GameSceneController);
+
+        this._view = view;
+        this._initialize();
+    }
+
+    _createClass(GameSceneController, [{
+        key: 'changeScene',
+        value: function changeScene(scene) {
+            switch (scene) {
+                case _sceneType2['default'].SELECT:
+                    this._changeToSelectScene();
+                    break;
+                case _sceneType2['default'].BATTLE:
+                    this._changeToBattleScene();
+                    break;
+                case _sceneType2['default'].SKILL:
+                    this._changeToSkillScene();
+                    break;
+                case _sceneType2['default'].CHANGE:
+                    this._changeToChangeScene();
+                    break;
+                case _sceneType2['default'].CONFIRM:
+                    // do nothing
+                    break;
+                default:
+                    throw new Error('Unknown scene : ' + scene);
+            }
         }
     }, {
         key: '_changeFieldHeight',
@@ -63,389 +319,84 @@ var AbstractSceneController = (function (_Observable) {
             field.scrollTop = field.scrollHeight;
         }
     }, {
-        key: '_clearConfirm',
-        value: function _clearConfirm() {
-            this._confirmType = _eventConfirmType2['default'].NONE;
-        }
-    }, {
-        key: '_notifyAllObserver',
-        value: function _notifyAllObserver(event, scene) {
-            this.notifyAllObserver({ event: event, scene: scene });
-        }
-    }]);
-
-    return AbstractSceneController;
-})(_utilObservable2['default']);
-
-exports['default'] = AbstractSceneController;
-module.exports = exports['default'];
-},{"../event/confirm-type":8,"../util/observable":12}],2:[function(require,module,exports){
-/**
- * battle-scene-controller.jsx
- * 
- * @author yuki
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _abstractSceneController = require('./abstract-scene-controller');
-
-var _abstractSceneController2 = _interopRequireDefault(_abstractSceneController);
-
-var _changeSceneController = require('./change-scene-controller');
-
-var _changeSceneController2 = _interopRequireDefault(_changeSceneController);
-
-var _eventConfirmType = require('../event/confirm-type');
-
-var _eventConfirmType2 = _interopRequireDefault(_eventConfirmType);
-
-var _confirmSceneController = require('./confirm-scene-controller');
-
-var _confirmSceneController2 = _interopRequireDefault(_confirmSceneController);
-
-var _eventEvent = require('../event/event');
-
-var _eventEvent2 = _interopRequireDefault(_eventEvent);
-
-var _skillSceneController = require('./skill-scene-controller');
-
-var _skillSceneController2 = _interopRequireDefault(_skillSceneController);
-
-var BattleSceneController = (function (_AbstractSceneController) {
-    _inherits(BattleSceneController, _AbstractSceneController);
-
-    function BattleSceneController(view) {
-        _classCallCheck(this, BattleSceneController);
-
-        _get(Object.getPrototypeOf(BattleSceneController.prototype), 'constructor', this).call(this);
-        this._view = view;
-        this._listenerTable = {};
-        this._listenerTable['onClickSkillButton'] = this.onClickSkillButton.bind(this);
-        this._listenerTable['onClickChangeButton'] = this.onClickChangeButton.bind(this);
-        this._listenerTable['onClickResignButton'] = this.onClickResignButton.bind(this);
-    }
-
-    _createClass(BattleSceneController, [{
-        key: 'initialize',
-        value: function initialize(master) {
-            var _this = this;
-
+        key: '_changeToBattleScene',
+        value: function _changeToBattleScene() {
             this._view.getElementById('select-info').style.display = 'none';
             this._view.getElementById('battle-info').style.display = 'inline';
             this._view.getElementById('skill-info').style.display = 'none';
             this._view.getElementById('change-info').style.display = 'none';
-            this._view.getElementById('select-menu').style.display = 'none';
-            this._view.getElementById('battle-menu').style.display = 'inline';
-            this._view.getElementById('skill-menu').style.display = 'none';
-            this._view.getElementById('change-menu').style.display = 'none';
-            this._view.getElementById('confirm-menu').style.display = 'none';
             this._changeFieldHeight(this._view.getElementById('info-field'), 200);
             this._changeFieldHeight(this._view.getElementById('text-message'), 360);
-            Array.prototype.forEach.call(this._view.getElementsByClassName('icon-pokemon'), function (image) {
-                image.onerror = function () {
-                    image.src = '../image/dummy.jpg';
-                    image.onerror = undefined;
-                };
-            });
 
-            master.getSelectedPokemonList(master.PLAYER_ID).forEach(function (pokemon, index) {
-                var imageID = 'icon-player-pokemon-' + index;
-                _this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-            });
-            master.getSelectedPokemonList(master.OPPONENT_ID).forEach(function (pokemon, index) {
-                var imageID = 'icon-opponent-pokemon-' + index;
-                _this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-            });
-            this._addEvent();
+            // master.getSelectedPokemonList(master.PLAYER_ID).forEach((pokemon, index) => {
+            //     const imageID = `icon-player-pokemon-${index}`;
+            //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
+            // });
+            // master.getSelectedPokemonList(master.OPPONENT_ID).forEach((pokemon, index) => {
+            //     const imageID = `icon-opponent-pokemon-${index}`;
+            //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
+            // });
         }
     }, {
-        key: 'onConfirmCancel',
-        value: function onConfirmCancel() {
-            this._view.getElementById('select-menu').style.display = 'none';
-            this._view.getElementById('battle-menu').style.display = 'inline';
-            this._view.getElementById('skill-menu').style.display = 'none';
-            this._view.getElementById('change-menu').style.display = 'none';
-            this._view.getElementById('confirm-menu').style.display = 'none';
-            this._clearConfirm();
-        }
-    }, {
-        key: 'onConfirmOK',
-        value: function onConfirmOK() {
-            this._view.getElementById('select-menu').style.display = 'none';
-            this._view.getElementById('battle-menu').style.display = 'inline';
-            this._view.getElementById('skill-menu').style.display = 'none';
-            this._view.getElementById('change-menu').style.display = 'none';
-            this._view.getElementById('confirm-menu').style.display = 'none';
-            var confirmType = this._confirmType;
-            this._clearConfirm();
-
-            switch (confirmType) {
-                case _eventConfirmType2['default'].RESIGN:
-                    this._confirmType = _eventConfirmType2['default'].GAME_SET;
-                    this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createConfirmSceneController(false, true));
-                    break;
-                case _eventConfirmType2['default'].GAME_SET:
-                    this._view.location.href = './title.html';
-                    break;
-                default:
-                    break;
-            }
-        }
-    }, {
-        key: 'onClickChangeButton',
-        value: function onClickChangeButton() {
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createChangeSceneController());
-        }
-    }, {
-        key: 'onClickResignButton',
-        value: function onClickResignButton() {
-            this._confirmType = _eventConfirmType2['default'].RESIGN;
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createConfirmSceneController());
-        }
-    }, {
-        key: 'onClickSkillButton',
-        value: function onClickSkillButton() {
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createSkillSceneController());
-        }
-    }, {
-        key: '_createChangeSceneController',
-        value: function _createChangeSceneController() {
-            return new _changeSceneController2['default'](this._view);
-        }
-    }, {
-        key: '_createConfirmSceneController',
-        value: function _createConfirmSceneController() {
-            var disableOK = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-            var disableCancel = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-
-            return new _confirmSceneController2['default'](this._view, this, disableOK, disableCancel);
-        }
-    }, {
-        key: '_createSkillSceneController',
-        value: function _createSkillSceneController() {
-            return new _skillSceneController2['default'](this._view);
-        }
-    }, {
-        key: '_addEvent',
-        value: function _addEvent() {
-            this._view.getElementById('button-skill').addEventListener('click', this._listenerTable['onClickSkillButton']);
-            this._view.getElementById('button-change').addEventListener('click', this._listenerTable['onClickChangeButton']);
-            this._view.getElementById('button-resign').addEventListener('click', this._listenerTable['onClickResignButton']);
-        }
-    }]);
-
-    return BattleSceneController;
-})(_abstractSceneController2['default']);
-
-exports['default'] = BattleSceneController;
-module.exports = exports['default'];
-},{"../event/confirm-type":8,"../event/event":9,"./abstract-scene-controller":1,"./change-scene-controller":3,"./confirm-scene-controller":4,"./skill-scene-controller":7}],3:[function(require,module,exports){
-/**
- * change-scene-controller.jsx
- * 
- * @author yuki
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _abstractSceneController = require('./abstract-scene-controller');
-
-var _abstractSceneController2 = _interopRequireDefault(_abstractSceneController);
-
-var _battleSceneController = require('./battle-scene-controller');
-
-var _battleSceneController2 = _interopRequireDefault(_battleSceneController);
-
-var _eventEvent = require('../event/event');
-
-var _eventEvent2 = _interopRequireDefault(_eventEvent);
-
-var ChangeSceneController = (function (_AbstractSceneController) {
-    _inherits(ChangeSceneController, _AbstractSceneController);
-
-    function ChangeSceneController(view) {
-        _classCallCheck(this, ChangeSceneController);
-
-        _get(Object.getPrototypeOf(ChangeSceneController.prototype), 'constructor', this).call(this);
-        this._view = view;
-        this._listenerTable = {};
-        this._listenerTable['onClickOKButton'] = this.onClickOKButton.bind(this);
-        this._listenerTable['onClickBackButton'] = this.onClickBackButton.bind(this);
-    }
-
-    _createClass(ChangeSceneController, [{
-        key: 'initialize',
-        value: function initialize(master) {
+        key: '_changeToChangeScene',
+        value: function _changeToChangeScene() {
             this._view.getElementById('select-info').style.display = 'none';
             this._view.getElementById('battle-info').style.display = 'inline';
             this._view.getElementById('skill-info').style.display = 'none';
             this._view.getElementById('change-info').style.display = 'inline';
-            this._view.getElementById('select-menu').style.display = 'none';
-            this._view.getElementById('battle-menu').style.display = 'none';
-            this._view.getElementById('skill-menu').style.display = 'none';
-            this._view.getElementById('change-menu').style.display = 'inline';
-            this._view.getElementById('confirm-menu').style.display = 'none';
             this._changeFieldHeight(this._view.getElementById('info-field'), 460);
             this._changeFieldHeight(this._view.getElementById('text-message'), 100);
-            this._addEvent();
         }
     }, {
-        key: 'onClickBackButton',
-        value: function onClickBackButton() {
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createBattleSceneController());
+        key: '_changeToSelectScene',
+        value: function _changeToSelectScene() {
+            this._view.getElementById('select-info').style.display = 'inline';
+            this._view.getElementById('battle-info').style.display = 'none';
+            this._view.getElementById('skill-info').style.display = 'none';
+            this._view.getElementById('change-info').style.display = 'none';
+            this._changeFieldHeight(this._view.getElementById('info-field'), 380);
+            this._changeFieldHeight(this._view.getElementById('text-message'), 180);
+
+            // master.getParty(master.PLAYER_ID).forEach((pokemon, index) => {
+            //     const imageID = `image-player-pokemon-${index}`;
+            //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
+            // });
+            // master.getParty(master.OPPONENT_ID).forEach((pokemon, index) => {
+            //     const imageID = `image-opponent-pokemon-${index}`;
+            //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
+            // });
         }
     }, {
-        key: 'onClickOKButton',
-        value: function onClickOKButton() {
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createBattleSceneController());
+        key: '_changeToSkillScene',
+        value: function _changeToSkillScene() {
+            this._view.getElementById('select-info').style.display = 'none';
+            this._view.getElementById('battle-info').style.display = 'inline';
+            this._view.getElementById('skill-info').style.display = 'inline';
+            this._view.getElementById('change-info').style.display = 'none';
+            this._changeFieldHeight(this._view.getElementById('info-field'), 460);
+            this._changeFieldHeight(this._view.getElementById('text-message'), 100);
         }
     }, {
-        key: '_createBattleSceneController',
-        value: function _createBattleSceneController() {
-            return new _battleSceneController2['default'](this._view);
-        }
-    }, {
-        key: '_addEvent',
-        value: function _addEvent() {
-            this._view.getElementById('button-change-ok').addEventListener('click', this._listenerTable['onClickOKButton']);
-            this._view.getElementById('button-change-back').addEventListener('click', this._listenerTable['onClickBackButton']);
+        key: '_initialize',
+        value: function _initialize() {
+            // GitHubにはポケモンの画像をアップロードしないため、その対策
+            var setDummyImage = function setDummyImage(image) {
+                image.onerror = function () {
+                    image.src = '../image/dummy.jpg';
+                    image.onerror = undefined;
+                };
+            };
+            Array.prototype.forEach.call(this._view.getElementsByClassName('image-pokemon'), setDummyImage);
+            Array.prototype.forEach.call(this._view.getElementsByClassName('icon-pokemon'), setDummyImage);
         }
     }]);
 
-    return ChangeSceneController;
-})(_abstractSceneController2['default']);
+    return GameSceneController;
+})();
 
-exports['default'] = ChangeSceneController;
+exports['default'] = GameSceneController;
 module.exports = exports['default'];
-},{"../event/event":9,"./abstract-scene-controller":1,"./battle-scene-controller":2}],4:[function(require,module,exports){
-/**
- * confirm-scene-controller.jsx
- * 
- * @author yuki
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _abstractSceneController = require('./abstract-scene-controller');
-
-var _abstractSceneController2 = _interopRequireDefault(_abstractSceneController);
-
-var _eventEvent = require('../event/event');
-
-var _eventEvent2 = _interopRequireDefault(_eventEvent);
-
-var ConfirmSceneController = (function (_AbstractSceneController) {
-    _inherits(ConfirmSceneController, _AbstractSceneController);
-
-    function ConfirmSceneController(view, parent) {
-        var disableOK = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
-        var disableCancel = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
-
-        _classCallCheck(this, ConfirmSceneController);
-
-        _get(Object.getPrototypeOf(ConfirmSceneController.prototype), 'constructor', this).call(this);
-        this._view = view;
-        this._parent = parent;
-        this._disableOK = disableOK;
-        this._disableCancel = disableCancel;
-        this._listenerTable = {};
-        this._listenerTable['onClickOKButton'] = this.onClickOKButton.bind(this);
-        this._listenerTable['onClickBackButton'] = this.onClickBackButton.bind(this);
-    }
-
-    _createClass(ConfirmSceneController, [{
-        key: 'initialize',
-        value: function initialize(master) {
-            this._view.getElementById('select-menu').style.display = 'none';
-            this._view.getElementById('battle-menu').style.display = 'none';
-            this._view.getElementById('skill-menu').style.display = 'none';
-            this._view.getElementById('change-menu').style.display = 'none';
-            this._view.getElementById('confirm-menu').style.display = 'inline';
-            this._addEvent();
-        }
-    }, {
-        key: 'onClickBackButton',
-        value: function onClickBackButton() {
-            this._removeEvent();
-            this._notifyAllObserver(_eventEvent2['default'].CONFIRM_CANCEL, this._parent);
-        }
-    }, {
-        key: 'onClickOKButton',
-        value: function onClickOKButton() {
-            this._removeEvent();
-            this._notifyAllObserver(_eventEvent2['default'].CONFIRM_OK, this._parent);
-        }
-    }, {
-        key: '_addEvent',
-        value: function _addEvent() {
-            if (this._disableOK) {
-                this._view.getElementById('button-confirm-ok').className = 'button button-disable';
-            } else {
-                this._view.getElementById('button-confirm-ok').addEventListener('click', this._listenerTable['onClickOKButton']);
-            }
-            if (this._disableCancel) {
-                this._view.getElementById('button-confirm-back').className = 'button button-disable';
-            } else {
-                this._view.getElementById('button-confirm-back').addEventListener('click', this._listenerTable['onClickBackButton']);
-            }
-        }
-    }, {
-        key: '_removeEvent',
-        value: function _removeEvent() {
-            this._view.getElementById('button-confirm-ok').removeEventListener('click', this._listenerTable['onClickOKButton']);
-            this._view.getElementById('button-confirm-back').removeEventListener('click', this._listenerTable['onClickBackButton']);
-        }
-    }]);
-
-    return ConfirmSceneController;
-})(_abstractSceneController2['default']);
-
-exports['default'] = ConfirmSceneController;
-module.exports = exports['default'];
-},{"../event/event":9,"./abstract-scene-controller":1}],5:[function(require,module,exports){
+},{"./scene-type":4}],3:[function(require,module,exports){
 /**
  * game-view-controller.jsx
  * 
@@ -460,7 +411,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -480,9 +431,17 @@ var _pokemonMockGameMaster = require('../pokemon/mock-game-master');
 
 var _pokemonMockGameMaster2 = _interopRequireDefault(_pokemonMockGameMaster);
 
-var _selectSceneController = require('./select-scene-controller');
+var _gameMenuController = require('./game-menu-controller');
 
-var _selectSceneController2 = _interopRequireDefault(_selectSceneController);
+var _gameMenuController2 = _interopRequireDefault(_gameMenuController);
+
+var _gameSceneController = require('./game-scene-controller');
+
+var _gameSceneController2 = _interopRequireDefault(_gameSceneController);
+
+var _sceneType = require('./scene-type');
+
+var _sceneType2 = _interopRequireDefault(_sceneType);
 
 var GameViewController = (function (_Observer) {
     _inherits(GameViewController, _Observer);
@@ -492,43 +451,64 @@ var GameViewController = (function (_Observer) {
 
         _get(Object.getPrototypeOf(GameViewController.prototype), 'constructor', this).call(this);
         this._view = view;
-        this._scene = this._createFirstSceneController(view);
+        this._scene = this._createSceneController(view);
+        this._menu = this._createMenuController(view);
         this._master = this._createGameMaster();
     }
 
     _createClass(GameViewController, [{
         key: 'initialize',
         value: function initialize() {
-            this._scene.addObserver(this);
-            this._scene.initialize(this._master);
+            this._menu.addObserver(this);
+            this._changeScene(_sceneType2['default'].SELECT);
         }
     }, {
         key: 'update',
         value: function update(target, param) {
             switch (param.event) {
-                case _eventEvent2['default'].CHANGE_VIEW:
-                    this._scene = param.scene;
-                    this._scene.addObserver(this);
-                    this._scene.initialize(this._master);
+                case _eventEvent2['default'].TO_SELECT_SCENE:
+                    this._changeScene(_sceneType2['default'].SELECT);
+                    break;
+                case _eventEvent2['default'].TO_BATTLE_SCENE:
+                    this._changeScene(_sceneType2['default'].BATTLE);
+                    break;
+                case _eventEvent2['default'].TO_SKILL_SCENE:
+                    this._changeScene(_sceneType2['default'].SKILL);
+                    break;
+                case _eventEvent2['default'].TO_CHANGE_SCENE:
+                    this._changeScene(_sceneType2['default'].CHANGE);
+                    break;
+                case _eventEvent2['default'].TO_CONFIRM_SCENE:
+                    this._changeScene(_sceneType2['default'].CONFIRM, param.disableOKButton, param.disableCancelButton);
                     break;
                 case _eventEvent2['default'].CONFIRM_OK:
-                    this._scene = param.scene;
-                    this._scene.addObserver(this);
-                    this._scene.onConfirmOK();
+                    this._menu.onConfirmOK(target.confirmType);
                     break;
                 case _eventEvent2['default'].CONFIRM_CANCEL:
-                    this._scene = param.scene;
-                    this._scene.addObserver(this);
-                    this._scene.onConfirmCancel();
+                    this._menu.onConfirmCancel(target.confirmType);
                     break;
                 default:
                     break;
             }
         }
     }, {
-        key: '_createFirstSceneController',
-        value: function _createFirstSceneController(view) {
-            return new _selectSceneController2['default'](view);
+        key: '_changeScene',
+        value: function _changeScene(scene) {
+            var disableOKButton = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
+            var disableCancelButton = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+
+            this._menu.changeScene(scene, disableOKButton, disableCancelButton);
+            this._scene.changeScene(scene);
+        }
+    }, {
+        key: '_createSceneController',
+        value: function _createSceneController(view) {
+            return new _gameSceneController2['default'](view);
+        }
+    }, {
+        key: '_createMenuController',
+        value: function _createMenuController(view) {
+            return new _gameMenuController2['default'](view);
         }
     }, {
         key: '_createGameMaster',
@@ -542,9 +522,9 @@ var GameViewController = (function (_Observer) {
 
 exports['default'] = GameViewController;
 module.exports = exports['default'];
-},{"../event/event":9,"../pokemon/mock-game-master":11,"../util/observer":13,"./select-scene-controller":6}],6:[function(require,module,exports){
+},{"../event/event":6,"../pokemon/mock-game-master":8,"../util/observer":10,"./game-menu-controller":1,"./game-scene-controller":2,"./scene-type":4}],4:[function(require,module,exports){
 /**
- * select-scene-controller.jsx
+ * scene-type.jsx
  * 
  * @author yuki
  */
@@ -554,196 +534,21 @@ module.exports = exports['default'];
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
+exports['default'] = {
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+    SELECT: 'SELECT',
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+    BATTLE: 'BATTLE',
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+    SKILL: 'SKILL',
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+    CHANGE: 'CHANGE',
 
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+    CONFIRM: 'CONFIRM'
 
-var _abstractSceneController = require('./abstract-scene-controller');
-
-var _abstractSceneController2 = _interopRequireDefault(_abstractSceneController);
-
-var _battleSceneController = require('./battle-scene-controller');
-
-var _battleSceneController2 = _interopRequireDefault(_battleSceneController);
-
-var _eventEvent = require('../event/event');
-
-var _eventEvent2 = _interopRequireDefault(_eventEvent);
-
-var SelectSceneController = (function (_AbstractSceneController) {
-    _inherits(SelectSceneController, _AbstractSceneController);
-
-    function SelectSceneController(view) {
-        _classCallCheck(this, SelectSceneController);
-
-        _get(Object.getPrototypeOf(SelectSceneController.prototype), 'constructor', this).call(this);
-        this._view = view;
-        this._listenerTable = {};
-        this._listenerTable['onClickOKButton'] = this.onClickOKButton.bind(this);
-        this._listenerTable['onClickBackButton'] = this.onClickBackButton.bind(this);
-    }
-
-    _createClass(SelectSceneController, [{
-        key: 'initialize',
-        value: function initialize(master) {
-            var _this = this;
-
-            this._view.getElementById('select-info').style.display = 'inline';
-            this._view.getElementById('battle-info').style.display = 'none';
-            this._view.getElementById('skill-info').style.display = 'none';
-            this._view.getElementById('change-info').style.display = 'none';
-            this._view.getElementById('select-menu').style.display = 'inline';
-            this._view.getElementById('battle-menu').style.display = 'none';
-            this._view.getElementById('skill-menu').style.display = 'none';
-            this._view.getElementById('change-menu').style.display = 'none';
-            this._view.getElementById('confirm-menu').style.display = 'none';
-            this._changeFieldHeight(this._view.getElementById('info-field'), 380);
-            this._changeFieldHeight(this._view.getElementById('text-message'), 180);
-            Array.prototype.forEach.call(this._view.getElementsByClassName('image-pokemon'), function (image) {
-                image.onerror = function () {
-                    image.src = '../image/dummy.jpg';
-                    image.onerror = undefined;
-                };
-            });
-
-            master.getParty(master.PLAYER_ID).forEach(function (pokemon, index) {
-                var imageID = 'image-player-pokemon-' + index;
-                _this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-            });
-            master.getParty(master.OPPONENT_ID).forEach(function (pokemon, index) {
-                var imageID = 'image-opponent-pokemon-' + index;
-                _this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-            });
-            this._addEvent();
-        }
-    }, {
-        key: 'onClickBackButton',
-        value: function onClickBackButton() {
-            this._view.location.href = './title.html';
-        }
-    }, {
-        key: 'onClickOKButton',
-        value: function onClickOKButton() {
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createBattleSceneController());
-        }
-    }, {
-        key: '_createBattleSceneController',
-        value: function _createBattleSceneController() {
-            return new _battleSceneController2['default'](this._view);
-        }
-    }, {
-        key: '_addEvent',
-        value: function _addEvent() {
-            this._view.getElementById('button-select-ok').addEventListener('click', this._listenerTable['onClickOKButton']);
-            this._view.getElementById('button-select-back').addEventListener('click', this._listenerTable['onClickBackButton']);
-        }
-    }]);
-
-    return SelectSceneController;
-})(_abstractSceneController2['default']);
-
-exports['default'] = SelectSceneController;
+};
 module.exports = exports['default'];
-},{"../event/event":9,"./abstract-scene-controller":1,"./battle-scene-controller":2}],7:[function(require,module,exports){
-/**
- * skill-scene-controller.jsx
- * 
- * @author yuki
- */
-
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-    value: true
-});
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _abstractSceneController = require('./abstract-scene-controller');
-
-var _abstractSceneController2 = _interopRequireDefault(_abstractSceneController);
-
-var _battleSceneController = require('./battle-scene-controller');
-
-var _battleSceneController2 = _interopRequireDefault(_battleSceneController);
-
-var _eventEvent = require('../event/event');
-
-var _eventEvent2 = _interopRequireDefault(_eventEvent);
-
-var SkillSceneController = (function (_AbstractSceneController) {
-    _inherits(SkillSceneController, _AbstractSceneController);
-
-    function SkillSceneController(view) {
-        _classCallCheck(this, SkillSceneController);
-
-        _get(Object.getPrototypeOf(SkillSceneController.prototype), 'constructor', this).call(this);
-        this._view = view;
-        this._listenerTable = {};
-        this._listenerTable['onClickOKButton'] = this.onClickOKButton.bind(this);
-        this._listenerTable['onClickBackButton'] = this.onClickBackButton.bind(this);
-    }
-
-    _createClass(SkillSceneController, [{
-        key: 'initialize',
-        value: function initialize(master) {
-            this._view.getElementById('select-info').style.display = 'none';
-            this._view.getElementById('battle-info').style.display = 'inline';
-            this._view.getElementById('skill-info').style.display = 'inline';
-            this._view.getElementById('change-info').style.display = 'none';
-            this._view.getElementById('select-menu').style.display = 'none';
-            this._view.getElementById('battle-menu').style.display = 'none';
-            this._view.getElementById('skill-menu').style.display = 'inline';
-            this._view.getElementById('change-menu').style.display = 'none';
-            this._view.getElementById('confirm-menu').style.display = 'none';
-            this._changeFieldHeight(this._view.getElementById('info-field'), 460);
-            this._changeFieldHeight(this._view.getElementById('text-message'), 100);
-            this._addEvent();
-        }
-    }, {
-        key: 'onClickBackButton',
-        value: function onClickBackButton() {
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createBattleSceneController());
-        }
-    }, {
-        key: 'onClickOKButton',
-        value: function onClickOKButton() {
-            this._notifyAllObserver(_eventEvent2['default'].CHANGE_VIEW, this._createBattleSceneController());
-        }
-    }, {
-        key: '_createBattleSceneController',
-        value: function _createBattleSceneController() {
-            return new _battleSceneController2['default'](this._view);
-        }
-    }, {
-        key: '_addEvent',
-        value: function _addEvent() {
-            this._view.getElementById('button-skill-ok').addEventListener('click', this._listenerTable['onClickOKButton']);
-            this._view.getElementById('button-skill-back').addEventListener('click', this._listenerTable['onClickBackButton']);
-        }
-    }]);
-
-    return SkillSceneController;
-})(_abstractSceneController2['default']);
-
-exports['default'] = SkillSceneController;
-module.exports = exports['default'];
-},{"../event/event":9,"./abstract-scene-controller":1,"./battle-scene-controller":2}],8:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /**
  * confirm-type.jsx
  * 
@@ -765,7 +570,7 @@ exports['default'] = {
 
 };
 module.exports = exports['default'];
-},{}],9:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /**
  * event.jsx
  * 
@@ -779,7 +584,15 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports['default'] = {
 
-    CHANGE_VIEW: 'CHANGE_VIEW',
+    TO_SELECT_SCENE: 'TO_SELECT_SCENE',
+
+    TO_BATTLE_SCENE: 'TO_BATTLE_SCENE',
+
+    TO_SKILL_SCENE: 'TO_SKILL_SCENE',
+
+    TO_CHANGE_SCENE: 'TO_CHANGE_SCENE',
+
+    TO_CONFIRM_SCENE: 'TO_CONFIRM_SCENE',
 
     CONFIRM_OK: 'CONFIRM_OK',
 
@@ -787,7 +600,7 @@ exports['default'] = {
 
 };
 module.exports = exports['default'];
-},{}],10:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 (function (global){
 /**
  * game-view-controller-loader.jsx
@@ -808,7 +621,7 @@ global.window.addEventListener('DOMContentLoaded', function () {
   global.controller.initialize();
 }, false);
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../controller/game-view-controller":5}],11:[function(require,module,exports){
+},{"../controller/game-view-controller":3}],8:[function(require,module,exports){
 /**
  * mock-game-master.jsx
  * 
@@ -850,7 +663,7 @@ var MockGameMaster = (function () {
 
 exports["default"] = MockGameMaster;
 module.exports = exports["default"];
-},{}],12:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /**
  * observable.jsx
  * 
@@ -904,7 +717,7 @@ var Observable = (function () {
 
 exports["default"] = Observable;
 module.exports = exports["default"];
-},{}],13:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /**
  * observer.jsx
  * 
@@ -938,4 +751,4 @@ var Observer = (function () {
 
 exports["default"] = Observer;
 module.exports = exports["default"];
-},{}]},{},[10]);
+},{}]},{},[7]);
