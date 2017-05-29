@@ -25,7 +25,6 @@ var GameSceneController = (function () {
         _classCallCheck(this, GameSceneController);
 
         this._view = view;
-        this._initialize();
     }
 
     _createClass(GameSceneController, [{
@@ -68,15 +67,6 @@ var GameSceneController = (function () {
             this._view.getElementById('change-info').style.display = 'none';
             this._changeFieldHeight(this._view.getElementById('info-field'), 200);
             this._changeFieldHeight(this._view.getElementById('text-message'), 360);
-
-            // master.getSelectedPokemonList(master.PLAYER_ID).forEach((pokemon, index) => {
-            //     const imageID = `icon-player-pokemon-${index}`;
-            //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-            // });
-            // master.getSelectedPokemonList(master.OPPONENT_ID).forEach((pokemon, index) => {
-            //     const imageID = `icon-opponent-pokemon-${index}`;
-            //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-            // });
         }
     }, {
         key: '_changeToChangeScene',
@@ -107,19 +97,6 @@ var GameSceneController = (function () {
             this._view.getElementById('change-info').style.display = 'none';
             this._changeFieldHeight(this._view.getElementById('info-field'), 460);
             this._changeFieldHeight(this._view.getElementById('text-message'), 100);
-        }
-    }, {
-        key: '_initialize',
-        value: function _initialize() {
-            // GitHubにはポケモンの画像をアップロードしないため、その対策
-            var setDummyImage = function setDummyImage(image) {
-                image.onerror = function () {
-                    image.src = '../image/dummy.jpg';
-                    image.onerror = undefined;
-                };
-            };
-            Array.prototype.forEach.call(this._view.getElementsByClassName('image-pokemon'), setDummyImage);
-            Array.prototype.forEach.call(this._view.getElementsByClassName('icon-pokemon'), setDummyImage);
         }
     }]);
 

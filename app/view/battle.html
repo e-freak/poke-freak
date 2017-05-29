@@ -64,39 +64,59 @@
                             <div class="inline-reverse" id="icon-player-pokemon"></div>
                         </div>
                         <div class="field-status">
+                            <div class="field-effect"></div>
+                            <div class="inline">
+                                <img class="player-pokemon image-pokemon" id="icon-player-active-pokemon" alt="pokemon" />
+                                <img class="image-pokemon" id="icon-opponent-active-pokemon" alt="pokemon" />
+                            </div>
                         </div>
                         <div class="battle-status">
                             <div class="inline-align-right">
-                                <span class="pokemon-name" id="opponent-pokemon-name"></span>
-                                <span class="pokemon-status-ailment" id="opponent-pokemon-status-ailment"></span>
+                                <span class="pokemon-name" id="opponent-active-pokemon-name"></span>
+                                <img class="icon-item" id="opponent-active-pokemon-item" alt="item" />
+                                <span class="pokemon-status-ailment" id="opponent-active-pokemon-status-ailment"></span>
                             </div>
-                            <div class="inline">
-                                <span class="pokemon-element" id="opponent-pokemon-element-0"></span>
-                                <span class="pokemon-element" id="opponent-pokemon-element-1"></span>
-                            </div>
-                            <div class="hp-bar" id="opponent-pokemon-hp-bar">
-                                <div class="hp-value" id="opponent-pokemon-hp"></div>
-                            </div>
-                            <div class="hp-count">
-                                <div class="hp-count-value" id="opponent-pokemon-hp-count"></div>
+                            <div class="inline" id="opponent-active-pokemon-element"></div>
+                            <div class="hp-bar" id="opponent-active-pokemon-hp-bar">
+                                <div class="hp-value" id="opponent-active-pokemon-hp"></div>
                             </div>
                             <hr class="separator" />
-                            <div class="inline">
-                                <img class="icon-pokemon" id="icon-opponent-pokemon-0" alt="icon" />
-                                <img class="icon-pokemon" id="icon-opponent-pokemon-1" alt="icon" />
-                                <img class="icon-pokemon" id="icon-opponent-pokemon-2" alt="icon" />
-                            </div>
+                            <div class="inline" id="icon-opponent-pokemon"></div>
                         </div>
                     </div>
                 </div>
                 <div id="skill-info">
                     <div class="inline">
-                        <div class="skill-status" id="skill-info-0"></div>
-                        <div class="skill-status" id="skill-info-1"></div>
+                        <div class="skill-status">
+                            <div class="skill-name-label">
+                                <span id="skill-name-0"></span>
+                            </div>
+                            <span id="skill-element-0"></span>
+                            <span class="skill-pp-value" id="skill-pp-0"></span>
+                        </div>
+                        <div class="skill-status">
+                            <div class="skill-name-label">
+                                <span id="skill-name-1"></span>
+                            </div>
+                            <span id="skill-element-1"></span>
+                            <span class="skill-pp-value" id="skill-pp-1"></span>
+                        </div>
                     </div>
                     <div class="inline">
-                        <div class="skill-status" id="skill-info-2"></div>
-                        <div class="skill-status" id="skill-info-3"></div>
+                        <div class="skill-status">
+                            <div class="skill-name-label">
+                                <span id="skill-name-2"></span>
+                            </div>
+                            <span id="skill-element-2"></span>
+                            <span class="skill-pp-value" id="skill-pp-2"></span>
+                        </div>
+                        <div class="skill-status">
+                            <div class="skill-name-label">
+                                <span id="skill-name-3"></span>
+                            </div>
+                            <span id="skill-element-3"></span>
+                            <span class="skill-pp-value" id="skill-pp-3"></span>
+                        </div>
                     </div>
                 </div>
                 <div id="change-info">
@@ -114,9 +134,6 @@
                             <div id="party-player-pokemon-element-0"></div>
                             <div class="hp-bar" id="party-player-pokemon-hp-bar">
                                 <div class="hp-value" id="party-player-pokemon-hp"></div>
-                            </div>
-                            <div class="hp-count">
-                                <div class="hp-count-value" id="party-player-pokemon-hp-count"></div>
                             </div>
                             <hr class="separator" />
                             <div class="inline">
@@ -138,9 +155,6 @@
                             <div class="hp-bar" id="party-player-pokemon-hp-bar">
                                 <div class="hp-value" id="party-player-pokemon-hp"></div>
                             </div>
-                            <div class="hp-count">
-                                <div class="hp-count-value" id="party-player-pokemon-hp-count"></div>
-                            </div>
                             <hr class="separator" />
                             <div class="inline">
                                 <div class="skill-name-list vertical-align-left" id="party-player-pokemon-skill-name-1"></div>
@@ -160,9 +174,6 @@
                             <div id="party-player-pokemon-element-2"></div>
                             <div class="hp-bar" id="party-player-pokemon-hp-bar">
                                 <div class="hp-value" id="party-player-pokemon-hp"></div>
-                            </div>
-                            <div class="hp-count">
-                                <div class="hp-count-value" id="party-player-pokemon-hp-count"></div>
                             </div>
                             <hr class="separator" />
                             <div class="inline">

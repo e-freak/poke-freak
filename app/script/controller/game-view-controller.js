@@ -24,13 +24,13 @@ var _utilObserver = require('../util/observer');
 
 var _utilObserver2 = _interopRequireDefault(_utilObserver);
 
-var _pokemonAnnouncerMockAnnouncer = require('../pokemon/announcer/mock-announcer');
+var _pokemonAnnouncerBrowserAnnouncer = require('../pokemon/announcer/browser-announcer');
 
-var _pokemonAnnouncerMockAnnouncer2 = _interopRequireDefault(_pokemonAnnouncerMockAnnouncer);
+var _pokemonAnnouncerBrowserAnnouncer2 = _interopRequireDefault(_pokemonAnnouncerBrowserAnnouncer);
 
-var _pokemonMockGameMaster = require('../pokemon/mock-game-master');
+var _pokemonGameMaster = require('../pokemon/game-master');
 
-var _pokemonMockGameMaster2 = _interopRequireDefault(_pokemonMockGameMaster);
+var _pokemonGameMaster2 = _interopRequireDefault(_pokemonGameMaster);
 
 var _gameMenuController = require('./game-menu-controller');
 
@@ -52,6 +52,10 @@ var _eventUserEvent = require('../event/user-event');
 
 var _eventUserEvent2 = _interopRequireDefault(_eventUserEvent);
 
+var _pokemonPartyFactory = require('../pokemon/party-factory');
+
+var _pokemonPartyFactory2 = _interopRequireDefault(_pokemonPartyFactory);
+
 var GameViewController = (function (_Observer) {
     _inherits(GameViewController, _Observer);
 
@@ -68,13 +72,21 @@ var GameViewController = (function (_Observer) {
         this._menu.addObserver(this._announcer);
         this._master.addObserver(this);
         this._master.addObserver(this._announcer);
+
+        var factory = new _pokemonPartyFactory2['default']();
+        this._playerParty = factory.create(this._master.PLAYER_ID, _pokemonDataSamplePartyList2['default'][0]);
+        this._opponentParty = factory.create(this._master.OPPONENT_ID, _pokemonDataSamplePartyList2['default'][1]);
+        this._playerParty.select([0, 1, 2]);
+        this._opponentParty.select([0, 1, 2]);
+        this._started = false;
     }
 
     _createClass(GameViewController, [{
         key: 'initialize',
         value: function initialize() {
             this._changeScene(_sceneType2['default'].SELECT);
-            this._master.initialize('プレイヤー', '対戦相手', _pokemonDataSamplePartyList2['default'][0], _pokemonDataSamplePartyList2['default'][1]);
+            this._master.initialize('プレイヤー', '対戦相手');
+            this._master.ready(this._playerParty, this._opponentParty);
         }
     }, {
         key: 'update',
@@ -85,13 +97,18 @@ var GameViewController = (function (_Observer) {
                     break;
                 case _eventUserEvent2['default'].TO_BATTLE_SCENE:
                     this._changeScene(_sceneType2['default'].BATTLE);
+                    if (!this._started) {
+                        this._started = true;
+                        this._master.start();
+                    }
                     break;
                 case _eventUserEvent2['default'].TO_SKILL_SCENE:
                     this._changeScene(_sceneType2['default'].SKILL);
+                    this._master.requestSkillMenu(this._master.PLAYER_ID);
                     break;
                 case _eventUserEvent2['default'].TO_CHANGE_SCENE:
                     this._changeScene(_sceneType2['default'].CHANGE);
-                    this._master.requestChangeMenu();
+                    this._master.requestChangeMenu(this._master.PLAYER_ID);
                     break;
                 case _eventUserEvent2['default'].TO_CONFIRM_SCENE:
                     this._changeScene(_sceneType2['default'].CONFIRM, param.disableOKButton, param.disableCancelButton);
@@ -118,7 +135,7 @@ var GameViewController = (function (_Observer) {
     }, {
         key: '_createAnnouncer',
         value: function _createAnnouncer(view) {
-            return new _pokemonAnnouncerMockAnnouncer2['default'](view);
+            return new _pokemonAnnouncerBrowserAnnouncer2['default'](view);
         }
     }, {
         key: '_createSceneController',
@@ -133,7 +150,7 @@ var GameViewController = (function (_Observer) {
     }, {
         key: '_createGameMaster',
         value: function _createGameMaster() {
-            return new _pokemonMockGameMaster2['default']();
+            return new _pokemonGameMaster2['default']();
         }
     }]);
 

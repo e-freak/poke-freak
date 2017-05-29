@@ -12,7 +12,6 @@ export default class GameSceneController {
     
     constructor(view) {
         this._view = view;
-        this._initialize();
     }
     
     changeScene(scene) {
@@ -51,15 +50,6 @@ export default class GameSceneController {
         this._view.getElementById('change-info').style.display = 'none';
         this._changeFieldHeight(this._view.getElementById('info-field'), 200);
         this._changeFieldHeight(this._view.getElementById('text-message'), 360);
-        
-        // master.getSelectedPokemonList(master.PLAYER_ID).forEach((pokemon, index) => {
-        //     const imageID = `icon-player-pokemon-${index}`;
-        //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-        // });
-        // master.getSelectedPokemonList(master.OPPONENT_ID).forEach((pokemon, index) => {
-        //     const imageID = `icon-opponent-pokemon-${index}`;
-        //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-        // });
     }
     
     _changeToChangeScene() {
@@ -87,18 +77,6 @@ export default class GameSceneController {
         this._view.getElementById('change-info').style.display = 'none';
         this._changeFieldHeight(this._view.getElementById('info-field'), 460);
         this._changeFieldHeight(this._view.getElementById('text-message'), 100);
-    }
-    
-    _initialize() {
-        // GitHubにはポケモンの画像をアップロードしないため、その対策
-        const setDummyImage = (image) => {
-            image.onerror = () => {
-                image.src = '../image/dummy.jpg';
-                image.onerror = undefined;
-            };
-        };
-        Array.prototype.forEach.call(this._view.getElementsByClassName('image-pokemon'), setDummyImage);
-        Array.prototype.forEach.call(this._view.getElementsByClassName('icon-pokemon'), setDummyImage);
     }
     
 }

@@ -64,6 +64,33 @@ div.field-status {
     color: #404040;
 }
 
+div.field-effect {
+    height: 80px;
+    max-height: 80px;
+    min-height: 80px;
+}
+
+div.skill-status {
+    width: auto !important;
+    width: 280px;
+    height: auto !important;
+    height: 100px;
+    max-width: 280px;
+    min-width: 280px;
+    max-height: 100px;
+    min-height: 100px;
+    overflow: hidden;
+    margin-top: 5px;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: #D0D0D0;
+    font-size: 14pt;
+}
+
 div.party-status {
     text-align: center;
     width: auto !important;
@@ -85,6 +112,12 @@ div.party-status {
     border-color: #D0D0D0;
     color: #404040;
     font-size: 12pt;
+}
+
+div.skill-name-label {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-size: 24pt;
 }
 
 div.skill-name-list {
@@ -197,6 +230,16 @@ span.pokemon-element {
     margin-top: 10px;
     margin-left: 3px;
     margin-right: 3px;
+}
+
+span.skill-pp-value {
+    margin-left: 15px;
+    color: #A0C0FF;
+}
+
+span.request-to-user {
+    font-weight: bold;
+    color: #0000FF;
 }
 
 img.image-pokemon {

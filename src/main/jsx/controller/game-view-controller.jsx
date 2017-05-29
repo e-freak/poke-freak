@@ -6,13 +6,15 @@
 
 import Observer from '../util/observer';
 
-import BrowserAnnouncer from '../pokemon/announcer/mock-announcer';
-import GameMaster from '../pokemon/mock-game-master';
+import BrowserAnnouncer from '../pokemon/announcer/browser-announcer';
+import GameMaster from '../pokemon/game-master';
 import GameMenuController from './game-menu-controller';
 import GameSceneController from './game-scene-controller';
 import SamplePartyList from '../pokemon/data/sample-party-list';
 import SceneType from './scene-type';
 import UserEvent from '../event/user-event';
+
+import PartyFactory from '../pokemon/party-factory';
 
 
 
@@ -29,11 +31,19 @@ export default class GameViewController extends Observer {
         this._menu.addObserver(this._announcer);
         this._master.addObserver(this);
         this._master.addObserver(this._announcer);
+        
+        const factory = new PartyFactory();
+        this._playerParty = factory.create(this._master.PLAYER_ID, SamplePartyList[0]);
+        this._opponentParty = factory.create(this._master.OPPONENT_ID, SamplePartyList[1]);
+        this._playerParty.select([ 0, 1, 2 ]);
+        this._opponentParty.select([ 0, 1, 2 ]);
+        this._started = false;
     }
     
     initialize() {
         this._changeScene(SceneType.SELECT);
-        this._master.initialize('プレイヤー', '対戦相手', SamplePartyList[0], SamplePartyList[1]);
+        this._master.initialize('プレイヤー', '対戦相手');
+        this._master.ready(this._playerParty, this._opponentParty);
     }
     
     update(target, param) {
@@ -43,13 +53,18 @@ export default class GameViewController extends Observer {
             break;
         case UserEvent.TO_BATTLE_SCENE:
             this._changeScene(SceneType.BATTLE);
+            if (!this._started) {
+                this._started = true;
+                this._master.start();
+            }
             break;
         case UserEvent.TO_SKILL_SCENE:
             this._changeScene(SceneType.SKILL);
+            this._master.requestSkillMenu(this._master.PLAYER_ID);
             break;
         case UserEvent.TO_CHANGE_SCENE:
             this._changeScene(SceneType.CHANGE);
-            this._master.requestChangeMenu();
+            this._master.requestChangeMenu(this._master.PLAYER_ID);
             break;
         case UserEvent.TO_CONFIRM_SCENE:
             this._changeScene(SceneType.CONFIRM, param.disableOKButton, param.disableCancelButton);
