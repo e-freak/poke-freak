@@ -28,13 +28,13 @@ var _eventConfirmType = require('../event/confirm-type');
 
 var _eventConfirmType2 = _interopRequireDefault(_eventConfirmType);
 
-var _eventEvent = require('../event/event');
-
-var _eventEvent2 = _interopRequireDefault(_eventEvent);
-
 var _sceneType = require('./scene-type');
 
 var _sceneType2 = _interopRequireDefault(_sceneType);
+
+var _eventUserEvent = require('../event/user-event');
+
+var _eventUserEvent2 = _interopRequireDefault(_eventUserEvent);
 
 var GameMenuController = (function (_Observable) {
     _inherits(GameMenuController, _Observable);
@@ -79,7 +79,7 @@ var GameMenuController = (function (_Observable) {
             switch (confirmType) {
                 case _eventConfirmType2['default'].RESIGN:
                     this._confirmType = _eventConfirmType2['default'].NONE;
-                    this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+                    this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
                     break;
                 case _eventConfirmType2['default'].GAME_SET:
                     // do nothing
@@ -94,7 +94,7 @@ var GameMenuController = (function (_Observable) {
             switch (confirmType) {
                 case _eventConfirmType2['default'].RESIGN:
                     this._confirmType = _eventConfirmType2['default'].GAME_SET;
-                    this._notifyAllObserver(_eventEvent2['default'].TO_CONFIRM_SCENE, false, true);
+                    this._notifyAllObserver(_eventUserEvent2['default'].TO_CONFIRM_SCENE, false, true);
                     break;
                 case _eventConfirmType2['default'].GAME_SET:
                     this._view.location.href = './title.html';
@@ -106,38 +106,38 @@ var GameMenuController = (function (_Observable) {
     }, {
         key: 'onClickBattleChangeButton',
         value: function onClickBattleChangeButton() {
-            this._notifyAllObserver(_eventEvent2['default'].TO_CHANGE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].TO_CHANGE_SCENE);
         }
     }, {
         key: 'onClickBattleResignButton',
         value: function onClickBattleResignButton() {
             this._confirmType = _eventConfirmType2['default'].RESIGN;
-            this._notifyAllObserver(_eventEvent2['default'].TO_CONFIRM_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].TO_CONFIRM_SCENE);
         }
     }, {
         key: 'onClickBattleSkillButton',
         value: function onClickBattleSkillButton() {
-            this._notifyAllObserver(_eventEvent2['default'].TO_SKILL_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].TO_SKILL_SCENE);
         }
     }, {
         key: 'onClickChangeBackButton',
         value: function onClickChangeBackButton() {
-            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
         }
     }, {
         key: 'onClickChangeOKButton',
         value: function onClickChangeOKButton() {
-            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
         }
     }, {
         key: 'onClickConfirmBackButton',
         value: function onClickConfirmBackButton() {
-            this._notifyAllObserver(_eventEvent2['default'].CONFIRM_CANCEL);
+            this._notifyAllObserver(_eventUserEvent2['default'].CONFIRM_CANCEL);
         }
     }, {
         key: 'onClickConfirmOKButton',
         value: function onClickConfirmOKButton() {
-            this._notifyAllObserver(_eventEvent2['default'].CONFIRM_OK);
+            this._notifyAllObserver(_eventUserEvent2['default'].CONFIRM_OK);
         }
     }, {
         key: 'onClickSelectBackButton',
@@ -147,17 +147,17 @@ var GameMenuController = (function (_Observable) {
     }, {
         key: 'onClickSelectOKButton',
         value: function onClickSelectOKButton() {
-            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
         }
     }, {
         key: 'onClickSkillBackButton',
         value: function onClickSkillBackButton() {
-            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
         }
     }, {
         key: 'onClickSkillOKButton',
         value: function onClickSkillOKButton() {
-            this._notifyAllObserver(_eventEvent2['default'].TO_BATTLE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
         }
     }, {
         key: '_activateButton',

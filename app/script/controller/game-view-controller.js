@@ -24,9 +24,9 @@ var _utilObserver = require('../util/observer');
 
 var _utilObserver2 = _interopRequireDefault(_utilObserver);
 
-var _eventEvent = require('../event/event');
+var _pokemonAnnouncerMockAnnouncer = require('../pokemon/announcer/mock-announcer');
 
-var _eventEvent2 = _interopRequireDefault(_eventEvent);
+var _pokemonAnnouncerMockAnnouncer2 = _interopRequireDefault(_pokemonAnnouncerMockAnnouncer);
 
 var _pokemonMockGameMaster = require('../pokemon/mock-game-master');
 
@@ -40,9 +40,17 @@ var _gameSceneController = require('./game-scene-controller');
 
 var _gameSceneController2 = _interopRequireDefault(_gameSceneController);
 
+var _pokemonDataSamplePartyList = require('../pokemon/data/sample-party-list');
+
+var _pokemonDataSamplePartyList2 = _interopRequireDefault(_pokemonDataSamplePartyList);
+
 var _sceneType = require('./scene-type');
 
 var _sceneType2 = _interopRequireDefault(_sceneType);
+
+var _eventUserEvent = require('../event/user-event');
+
+var _eventUserEvent2 = _interopRequireDefault(_eventUserEvent);
 
 var GameViewController = (function (_Observer) {
     _inherits(GameViewController, _Observer);
@@ -54,38 +62,44 @@ var GameViewController = (function (_Observer) {
         this._view = view;
         this._scene = this._createSceneController(view);
         this._menu = this._createMenuController(view);
+        this._announcer = this._createAnnouncer(view);
         this._master = this._createGameMaster();
+        this._menu.addObserver(this);
+        this._menu.addObserver(this._announcer);
+        this._master.addObserver(this);
+        this._master.addObserver(this._announcer);
     }
 
     _createClass(GameViewController, [{
         key: 'initialize',
         value: function initialize() {
-            this._menu.addObserver(this);
             this._changeScene(_sceneType2['default'].SELECT);
+            this._master.initialize('プレイヤー', '対戦相手', _pokemonDataSamplePartyList2['default'][0], _pokemonDataSamplePartyList2['default'][1]);
         }
     }, {
         key: 'update',
         value: function update(target, param) {
             switch (param.event) {
-                case _eventEvent2['default'].TO_SELECT_SCENE:
+                case _eventUserEvent2['default'].TO_SELECT_SCENE:
                     this._changeScene(_sceneType2['default'].SELECT);
                     break;
-                case _eventEvent2['default'].TO_BATTLE_SCENE:
+                case _eventUserEvent2['default'].TO_BATTLE_SCENE:
                     this._changeScene(_sceneType2['default'].BATTLE);
                     break;
-                case _eventEvent2['default'].TO_SKILL_SCENE:
+                case _eventUserEvent2['default'].TO_SKILL_SCENE:
                     this._changeScene(_sceneType2['default'].SKILL);
                     break;
-                case _eventEvent2['default'].TO_CHANGE_SCENE:
+                case _eventUserEvent2['default'].TO_CHANGE_SCENE:
                     this._changeScene(_sceneType2['default'].CHANGE);
+                    this._master.requestChangeMenu();
                     break;
-                case _eventEvent2['default'].TO_CONFIRM_SCENE:
+                case _eventUserEvent2['default'].TO_CONFIRM_SCENE:
                     this._changeScene(_sceneType2['default'].CONFIRM, param.disableOKButton, param.disableCancelButton);
                     break;
-                case _eventEvent2['default'].CONFIRM_OK:
+                case _eventUserEvent2['default'].CONFIRM_OK:
                     this._menu.onConfirmOK(target.confirmType);
                     break;
-                case _eventEvent2['default'].CONFIRM_CANCEL:
+                case _eventUserEvent2['default'].CONFIRM_CANCEL:
                     this._menu.onConfirmCancel(target.confirmType);
                     break;
                 default:
@@ -100,6 +114,11 @@ var GameViewController = (function (_Observer) {
 
             this._menu.changeScene(scene, disableOKButton, disableCancelButton);
             this._scene.changeScene(scene);
+        }
+    }, {
+        key: '_createAnnouncer',
+        value: function _createAnnouncer(view) {
+            return new _pokemonAnnouncerMockAnnouncer2['default'](view);
         }
     }, {
         key: '_createSceneController',

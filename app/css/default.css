@@ -40,3 +40,24 @@ div.inline-align-right {
     justify-content: center;
     align-items: flex-end;
 }
+
+div.vertical {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+}
+
+div.vertical-align-left {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+div.vertical-align-right {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+    flex-direction: column;
+}

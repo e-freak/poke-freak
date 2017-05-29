@@ -78,15 +78,6 @@ export default class GameSceneController {
         this._view.getElementById('change-info').style.display = 'none';
         this._changeFieldHeight(this._view.getElementById('info-field'), 380);
         this._changeFieldHeight(this._view.getElementById('text-message'), 180);
-        
-        // master.getParty(master.PLAYER_ID).forEach((pokemon, index) => {
-        //     const imageID = `image-player-pokemon-${index}`;
-        //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-        // });
-        // master.getParty(master.OPPONENT_ID).forEach((pokemon, index) => {
-        //     const imageID = `image-opponent-pokemon-${index}`;
-        //     this._view.getElementById(imageID).src = '../image/pokemon/xxxx.png';
-        // });
     }
     
     _changeToSkillScene() {

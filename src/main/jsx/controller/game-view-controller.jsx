@@ -6,11 +6,13 @@
 
 import Observer from '../util/observer';
 
-import Event from '../event/event';
+import BrowserAnnouncer from '../pokemon/announcer/mock-announcer';
 import GameMaster from '../pokemon/mock-game-master';
 import GameMenuController from './game-menu-controller';
 import GameSceneController from './game-scene-controller';
+import SamplePartyList from '../pokemon/data/sample-party-list';
 import SceneType from './scene-type';
+import UserEvent from '../event/user-event';
 
 
 
@@ -21,35 +23,41 @@ export default class GameViewController extends Observer {
         this._view = view;
         this._scene = this._createSceneController(view);
         this._menu = this._createMenuController(view);
+        this._announcer = this._createAnnouncer(view);
         this._master = this._createGameMaster();
+        this._menu.addObserver(this);
+        this._menu.addObserver(this._announcer);
+        this._master.addObserver(this);
+        this._master.addObserver(this._announcer);
     }
     
     initialize() {
-        this._menu.addObserver(this);
         this._changeScene(SceneType.SELECT);
+        this._master.initialize('プレイヤー', '対戦相手', SamplePartyList[0], SamplePartyList[1]);
     }
     
     update(target, param) {
         switch (param.event) {
-        case Event.TO_SELECT_SCENE:
+        case UserEvent.TO_SELECT_SCENE:
             this._changeScene(SceneType.SELECT);
             break;
-        case Event.TO_BATTLE_SCENE:
+        case UserEvent.TO_BATTLE_SCENE:
             this._changeScene(SceneType.BATTLE);
             break;
-        case Event.TO_SKILL_SCENE:
+        case UserEvent.TO_SKILL_SCENE:
             this._changeScene(SceneType.SKILL);
             break;
-        case Event.TO_CHANGE_SCENE:
+        case UserEvent.TO_CHANGE_SCENE:
             this._changeScene(SceneType.CHANGE);
+            this._master.requestChangeMenu();
             break;
-        case Event.TO_CONFIRM_SCENE:
+        case UserEvent.TO_CONFIRM_SCENE:
             this._changeScene(SceneType.CONFIRM, param.disableOKButton, param.disableCancelButton);
             break;
-        case Event.CONFIRM_OK:
+        case UserEvent.CONFIRM_OK:
             this._menu.onConfirmOK(target.confirmType);
             break;
-        case Event.CONFIRM_CANCEL:
+        case UserEvent.CONFIRM_CANCEL:
             this._menu.onConfirmCancel(target.confirmType);
             break;
         default:
@@ -60,6 +68,10 @@ export default class GameViewController extends Observer {
     _changeScene(scene, disableOKButton = undefined, disableCancelButton = undefined) {
         this._menu.changeScene(scene, disableOKButton, disableCancelButton);
         this._scene.changeScene(scene);
+    }
+    
+    _createAnnouncer(view) {
+        return new BrowserAnnouncer(view);
     }
     
     _createSceneController(view) {

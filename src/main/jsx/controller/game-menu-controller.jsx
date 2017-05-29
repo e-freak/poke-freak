@@ -7,8 +7,8 @@
 import Observable from '../util/observable';
 
 import ConfirmType from '../event/confirm-type';
-import Event from '../event/event';
 import SceneType from './scene-type';
+import UserEvent from '../event/user-event';
 
 
 
@@ -46,7 +46,7 @@ export default class GameMenuController extends Observable {
         switch (confirmType) {
         case ConfirmType.RESIGN:
             this._confirmType = ConfirmType.NONE;
-            this._notifyAllObserver(Event.TO_BATTLE_SCENE);
+            this._notifyAllObserver(UserEvent.TO_BATTLE_SCENE);
             break;
         case ConfirmType.GAME_SET:
             // do nothing
@@ -60,7 +60,7 @@ export default class GameMenuController extends Observable {
         switch (confirmType) {
         case ConfirmType.RESIGN:
             this._confirmType = ConfirmType.GAME_SET;
-            this._notifyAllObserver(Event.TO_CONFIRM_SCENE, false, true);
+            this._notifyAllObserver(UserEvent.TO_CONFIRM_SCENE, false, true);
             break;
         case ConfirmType.GAME_SET:
             this._view.location.href = './title.html';
@@ -75,32 +75,32 @@ export default class GameMenuController extends Observable {
     }
     
     onClickBattleChangeButton() {
-        this._notifyAllObserver(Event.TO_CHANGE_SCENE);
+        this._notifyAllObserver(UserEvent.TO_CHANGE_SCENE);
     }
     
     onClickBattleResignButton() {
         this._confirmType = ConfirmType.RESIGN;
-        this._notifyAllObserver(Event.TO_CONFIRM_SCENE);
+        this._notifyAllObserver(UserEvent.TO_CONFIRM_SCENE);
     }
     
     onClickBattleSkillButton() {
-        this._notifyAllObserver(Event.TO_SKILL_SCENE);
+        this._notifyAllObserver(UserEvent.TO_SKILL_SCENE);
     }
     
     onClickChangeBackButton() {
-        this._notifyAllObserver(Event.TO_BATTLE_SCENE);
+        this._notifyAllObserver(UserEvent.TO_BATTLE_SCENE);
     }
     
     onClickChangeOKButton() {
-        this._notifyAllObserver(Event.TO_BATTLE_SCENE);
+        this._notifyAllObserver(UserEvent.TO_BATTLE_SCENE);
     }
     
     onClickConfirmBackButton() {
-        this._notifyAllObserver(Event.CONFIRM_CANCEL);
+        this._notifyAllObserver(UserEvent.CONFIRM_CANCEL);
     }
     
     onClickConfirmOKButton() {
-        this._notifyAllObserver(Event.CONFIRM_OK);
+        this._notifyAllObserver(UserEvent.CONFIRM_OK);
     }
     
     onClickSelectBackButton() {
@@ -108,15 +108,15 @@ export default class GameMenuController extends Observable {
     }
     
     onClickSelectOKButton() {
-        this._notifyAllObserver(Event.TO_BATTLE_SCENE);
+        this._notifyAllObserver(UserEvent.TO_BATTLE_SCENE);
     }
     
     onClickSkillBackButton() {
-        this._notifyAllObserver(Event.TO_BATTLE_SCENE);
+        this._notifyAllObserver(UserEvent.TO_BATTLE_SCENE);
     }
     
     onClickSkillOKButton() {
-        this._notifyAllObserver(Event.TO_BATTLE_SCENE);
+        this._notifyAllObserver(UserEvent.TO_BATTLE_SCENE);
     }
     
     _activateButton(buttonID, listener) {
