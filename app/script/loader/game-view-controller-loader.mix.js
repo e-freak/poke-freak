@@ -13,7 +13,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x9, _x10, _x11) { var _again = true; _function: while (_again) { var object = _x9, property = _x10, receiver = _x11; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x9 = parent; _x10 = property; _x11 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -46,6 +46,9 @@ var GameMenuController = (function (_Observable) {
         _get(Object.getPrototypeOf(GameMenuController.prototype), 'constructor', this).call(this);
         this._view = view;
         this._confirmType = _eventConfirmType2['default'].NONE;
+        this._selectedPokemonIndexList = [];
+        this._selectedSkillIndex = undefined;
+        this._selectedChangeIndex = undefined;
     }
 
     _createClass(GameMenuController, [{
@@ -65,7 +68,7 @@ var GameMenuController = (function (_Observable) {
                     this._changeToSkillScene();
                     break;
                 case _sceneType2['default'].CHANGE:
-                    this._changeToChangeScene();
+                    this._changeToChangeScene(disableCancelButton);
                     break;
                 case _sceneType2['default'].CONFIRM:
                     this._changeToConfirmScene(disableOKButton, disableCancelButton);
@@ -73,6 +76,25 @@ var GameMenuController = (function (_Observable) {
                 default:
                     throw new Error('Unknown scene : ' + scene);
             }
+        }
+    }, {
+        key: 'initialize',
+        value: function initialize() {
+            for (var i = 0; i < 6; i++) {
+                var frame = this._view.getElementById('image-player-pokemon-' + i);
+                frame.addEventListener('click', this.onClickSelectTarget.bind(this, i));
+            }
+            for (var i = 0; i < 4; i++) {
+                var frame = this._view.getElementById('frame-skill-' + i);
+                frame.addEventListener('click', this.onClickSkillFrame.bind(this, i));
+            }
+            for (var i = 0; i < 3; i++) {
+                var frame = this._view.getElementById('frame-pokemon-' + i);
+                frame.addEventListener('click', this.onClickChangeFrame.bind(this, i));
+            }
+            this._view.getElementById('button-skill').addEventListener('click', this.onClickBattleSkillButton.bind(this));
+            this._view.getElementById('button-change').addEventListener('click', this.onClickBattleChangeButton.bind(this));
+            this._view.getElementById('button-resign').addEventListener('click', this.onClickBattleResignButton.bind(this));
         }
     }, {
         key: 'onConfirmCancel',
@@ -95,7 +117,8 @@ var GameMenuController = (function (_Observable) {
             switch (confirmType) {
                 case _eventConfirmType2['default'].RESIGN:
                     this._confirmType = _eventConfirmType2['default'].GAME_SET;
-                    this._notifyAllObserver(_eventUserEvent2['default'].TO_CONFIRM_SCENE, false, true);
+                    this._notifyAllObserver(_eventUserEvent2['default'].SELECT_RESIGN_OK);
+                    this._notifyAllObserver(_eventUserEvent2['default'].TO_CONFIRM_SCENE, undefined, false, true);
                     break;
                 case _eventConfirmType2['default'].GAME_SET:
                     this._view.location.href = './title.html';
@@ -113,6 +136,7 @@ var GameMenuController = (function (_Observable) {
         key: 'onClickBattleResignButton',
         value: function onClickBattleResignButton() {
             this._confirmType = _eventConfirmType2['default'].RESIGN;
+            this._notifyAllObserver(_eventUserEvent2['default'].SELECT_RESIGN_CHECK);
             this._notifyAllObserver(_eventUserEvent2['default'].TO_CONFIRM_SCENE);
         }
     }, {
@@ -123,12 +147,27 @@ var GameMenuController = (function (_Observable) {
     }, {
         key: 'onClickChangeBackButton',
         value: function onClickChangeBackButton() {
+            this._unselectChange();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+        }
+    }, {
+        key: 'onClickChangeFrame',
+        value: function onClickChangeFrame(index) {
+            if (this._selectedChangeIndex !== index) {
+                this._unselectChange();
+                this._selectChange(index);
+                this._activateButton('button-ok', this.onClickChangeOKButton.bind(this));
+            } else {
+                this._unselectChange();
+                this._deactivateButton('button-ok');
+            }
         }
     }, {
         key: 'onClickChangeOKButton',
         value: function onClickChangeOKButton() {
+            var index = this._unselectChange();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].SELECT_CHANGE, index);
         }
     }, {
         key: 'onClickConfirmBackButton',
@@ -148,17 +187,60 @@ var GameMenuController = (function (_Observable) {
     }, {
         key: 'onClickSelectOKButton',
         value: function onClickSelectOKButton() {
+            var indexList = this._resetPokemonIndexList();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+            // this._notifyAllObserver(UserEvent.XXX, indexList);
+        }
+    }, {
+        key: 'onClickSelectTarget',
+        value: function onClickSelectTarget(index) {
+            var _this = this;
+
+            if (!this._selectedPokemonIndexList.includes(index)) {
+                if (this._selectedPokemonIndexList.length < 3) {
+                    this._selectedPokemonIndexList.push(index);
+                    var target = this._view.getElementById('image-player-pokemon-' + index);
+                    target.className = 'player-pokemon image-pokemon pokemon-selected';
+                }
+            } else {
+                this._selectedPokemonIndexList.some(function (value, i) {
+                    if (value === index) {
+                        _this._selectedPokemonIndexList.splice(i, 1);
+                    }
+                });
+                var target = this._view.getElementById('image-player-pokemon-' + index);
+                target.className = 'player-pokemon image-pokemon';
+            }
+            if (this._selectedPokemonIndexList.length === 3) {
+                this._activateButton('button-ok', this.onClickSelectOKButton.bind(this));
+            } else {
+                this._deactivateButton('button-ok');
+            }
         }
     }, {
         key: 'onClickSkillBackButton',
         value: function onClickSkillBackButton() {
+            this._unselectSkill();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+        }
+    }, {
+        key: 'onClickSkillFrame',
+        value: function onClickSkillFrame(index) {
+            if (this._selectedSkillIndex !== index) {
+                this._unselectSkill();
+                this._selectSkill(index);
+                this._activateButton('button-ok', this.onClickSkillOKButton.bind(this));
+            } else {
+                this._unselectSkill();
+                this._deactivateButton('button-ok');
+            }
         }
     }, {
         key: 'onClickSkillOKButton',
         value: function onClickSkillOKButton() {
+            var index = this._unselectSkill();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].SELECT_SKILL, index);
         }
     }, {
         key: '_activateButton',
@@ -177,21 +259,27 @@ var GameMenuController = (function (_Observable) {
         value: function _changeToBattleScene() {
             this._view.getElementById('default-menu').style.display = 'none';
             this._view.getElementById('battle-menu').style.display = 'inline';
-            this._view.getElementById('button-skill').addEventListener('click', this.onClickBattleSkillButton.bind(this));
-            this._view.getElementById('button-change').addEventListener('click', this.onClickBattleChangeButton.bind(this));
-            this._view.getElementById('button-resign').addEventListener('click', this.onClickBattleResignButton.bind(this));
         }
     }, {
         key: '_changeToChangeScene',
         value: function _changeToChangeScene() {
+            var disableCancelButton = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
             this._view.getElementById('default-menu').style.display = 'inline';
             this._view.getElementById('battle-menu').style.display = 'none';
             this._deactivateButton('button-ok');
-            this._activateButton('button-back', this.onClickChangeBackButton.bind(this));
+            if (disableCancelButton) {
+                this._deactivateButton('button-back');
+            } else {
+                this._activateButton('button-back', this.onClickChangeBackButton.bind(this));
+            }
         }
     }, {
         key: '_changeToConfirmScene',
-        value: function _changeToConfirmScene(disableOKButton, disableCancelButton) {
+        value: function _changeToConfirmScene() {
+            var disableOKButton = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+            var disableCancelButton = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
             this._view.getElementById('default-menu').style.display = 'inline';
             this._view.getElementById('battle-menu').style.display = 'none';
             if (disableOKButton) {
@@ -227,15 +315,13 @@ var GameMenuController = (function (_Observable) {
     }, {
         key: '_notifyAllObserver',
         value: function _notifyAllObserver(event) {
-            var disableOKButton = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-            var disableCancelButton = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+            var value = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
+            var disableOKButton = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+            var disableCancelButton = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
             this._removeAllEventListener(this._view.getElementById('button-ok'));
             this._removeAllEventListener(this._view.getElementById('button-back'));
-            this._removeAllEventListener(this._view.getElementById('button-skill'));
-            this._removeAllEventListener(this._view.getElementById('button-change'));
-            this._removeAllEventListener(this._view.getElementById('button-resign'));
-            this.notifyAllObserver({ event: event, disableOKButton: disableOKButton, disableCancelButton: disableCancelButton });
+            this.notifyAllObserver({ event: event, value: value, disableOKButton: disableOKButton, disableCancelButton: disableCancelButton });
         }
     }, {
         key: '_removeAllEventListener',
@@ -243,6 +329,63 @@ var GameMenuController = (function (_Observable) {
             var parent = element.parentNode;
             parent.removeChild(element);
             parent.appendChild(element.cloneNode(true));
+        }
+    }, {
+        key: '_resetPokemonIndexList',
+        value: function _resetPokemonIndexList() {
+            try {
+                return this._selectedPokemonIndexList;
+            } finally {
+                this._selectedPokemonIndexList = [];
+            }
+        }
+    }, {
+        key: '_resetChangeIndex',
+        value: function _resetChangeIndex() {
+            try {
+                return this._selectedChangeIndex;
+            } finally {
+                this._selectedChangeIndex = undefined;
+            }
+        }
+    }, {
+        key: '_resetSkillIndex',
+        value: function _resetSkillIndex() {
+            try {
+                return this._selectedSkillIndex;
+            } finally {
+                this._selectedSkillIndex = undefined;
+            }
+        }
+    }, {
+        key: '_selectChange',
+        value: function _selectChange(index) {
+            this._selectedChangeIndex = index;
+            this._view.getElementById('frame-pokemon-' + index).style.borderColor = '#0000FF';
+        }
+    }, {
+        key: '_selectSkill',
+        value: function _selectSkill(index) {
+            this._selectedSkillIndex = index;
+            this._view.getElementById('frame-skill-' + index).style.borderColor = '#0000FF';
+        }
+    }, {
+        key: '_unselectChange',
+        value: function _unselectChange() {
+            var index = this._resetChangeIndex();
+            if (index !== undefined) {
+                this._view.getElementById('frame-pokemon-' + index).style.borderColor = '#D0D0D0';
+            }
+            return index;
+        }
+    }, {
+        key: '_unselectSkill',
+        value: function _unselectSkill() {
+            var index = this._resetSkillIndex();
+            if (index !== undefined) {
+                this._view.getElementById('frame-skill-' + index).style.borderColor = '#D0D0D0';
+            }
+            return index;
         }
     }, {
         key: 'confirmType',
@@ -315,7 +458,6 @@ var GameSceneController = (function () {
             field.style.height = value + 'px';
             field.style['max-height'] = value + 'px';
             field.style['min-height'] = value + 'px';
-            field.scrollTop = field.scrollHeight;
         }
     }, {
         key: '_changeToBattleScene',
@@ -395,6 +537,10 @@ var _pokemonAnnouncerBrowserAnnouncer = require('../pokemon/announcer/browser-an
 
 var _pokemonAnnouncerBrowserAnnouncer2 = _interopRequireDefault(_pokemonAnnouncerBrowserAnnouncer);
 
+var _pokemonEventGameEvent = require('../pokemon/event/game-event');
+
+var _pokemonEventGameEvent2 = _interopRequireDefault(_pokemonEventGameEvent);
+
 var _pokemonGameMaster = require('../pokemon/game-master');
 
 var _pokemonGameMaster2 = _interopRequireDefault(_pokemonGameMaster);
@@ -435,6 +581,7 @@ var GameViewController = (function (_Observer) {
         this._menu = this._createMenuController(view);
         this._announcer = this._createAnnouncer(view);
         this._master = this._createGameMaster();
+        this._gameEvent = undefined;
         this._menu.addObserver(this);
         this._menu.addObserver(this._announcer);
         this._master.addObserver(this);
@@ -446,11 +593,13 @@ var GameViewController = (function (_Observer) {
         this._playerParty.select([0, 1, 2]);
         this._opponentParty.select([0, 1, 2]);
         this._started = false;
+        this._opponentPokemonIndex = 0;
     }
 
     _createClass(GameViewController, [{
         key: 'initialize',
         value: function initialize() {
+            this._menu.initialize();
             this._changeScene(_sceneType2['default'].SELECT);
             this._master.initialize('プレイヤー', '対戦相手');
             this._master.ready(this._playerParty, this._opponentParty);
@@ -485,6 +634,52 @@ var GameViewController = (function (_Observer) {
                     break;
                 case _eventUserEvent2['default'].CONFIRM_CANCEL:
                     this._menu.onConfirmCancel(target.confirmType);
+                    break;
+                case _eventUserEvent2['default'].SELECT_SKILL:
+                    this._master.skill(this._master.PLAYER_ID, param.value);
+                    this._master.skill(this._master.OPPONENT_ID, 0);
+                    break;
+                case _eventUserEvent2['default'].SELECT_CHANGE:
+                    switch (this._gameEvent) {
+                        case _pokemonEventGameEvent2['default'].CHANGE_FOR_NEXT:
+                            this._gameEvent = undefined;
+                            this._master.next(this._master.PLAYER_ID, param.value);
+                            break;
+                        case _pokemonEventGameEvent2['default'].RETURN_TO_HAND_BY_SKILL:
+                        case _pokemonEventGameEvent2['default'].RETURN_TO_HAND_BY_EJECT_BUTTON:
+                            this._gameEvent = undefined;
+                            this._master.changeBySkill(this._master.PLAYER_ID, param.value);
+                            break;
+                        default:
+                            this._master.change(this._master.PLAYER_ID, param.value);
+                            this._master.skill(this._master.OPPONENT_ID, 0);
+                            break;
+                    }
+                    break;
+                case _eventUserEvent2['default'].SELECT_RESIGN_CHECK:
+                    this._master.confirmResign(this._master.PLAYER_ID);
+                    break;
+                case _eventUserEvent2['default'].SELECT_RESIGN_OK:
+                    this._master.resign(this._master.PLAYER_ID);
+                    this._master.skill(this._master.OPPONENT_ID, 0);
+                    break;
+                case _pokemonEventGameEvent2['default'].CHANGE_FOR_NEXT:
+                    if (param.playerID.value === this._master.PLAYER_ID.value) {
+                        this._gameEvent = param.event;
+                        this._changeScene(_sceneType2['default'].CHANGE, true, true);
+                        this._master.requestChangeMenu(param.playerID, false);
+                    } else {
+                        this._master.next(param.playerID, this._opponentPokemonIndex + 1);
+                        this._opponentPokemonIndex++;
+                    }
+                    break;
+                case _pokemonEventGameEvent2['default'].RETURN_TO_HAND_BY_SKILL:
+                case _pokemonEventGameEvent2['default'].RETURN_TO_HAND_BY_EJECT_BUTTON:
+                    if (param.playerID.value === this._master.PLAYER_ID.value) {
+                        this._gameEvent = param.event;
+                        this._changeScene(_sceneType2['default'].CHANGE, true, true);
+                        this._master.requestChangeMenu(param.playerID, false);
+                    }
                     break;
                 default:
                     break;
@@ -526,7 +721,7 @@ var GameViewController = (function (_Observer) {
 
 exports['default'] = GameViewController;
 module.exports = exports['default'];
-},{"../event/user-event":6,"../pokemon/announcer/browser-announcer":9,"../pokemon/data/sample-party-list":12,"../pokemon/game-master":17,"../pokemon/party-factory":19,"../util/observer":42,"./game-menu-controller":1,"./game-scene-controller":2,"./scene-type":4}],4:[function(require,module,exports){
+},{"../event/user-event":6,"../pokemon/announcer/browser-announcer":9,"../pokemon/data/sample-party-list":12,"../pokemon/event/game-event":15,"../pokemon/game-master":17,"../pokemon/party-factory":19,"../util/observer":42,"./game-menu-controller":1,"./game-scene-controller":2,"./scene-type":4}],4:[function(require,module,exports){
 /**
  * scene-type.jsx
  * 
@@ -588,19 +783,29 @@ Object.defineProperty(exports, '__esModule', {
 });
 exports['default'] = {
 
-    TO_SELECT_SCENE: 'TO_SELECT_SCENE',
+    // 必ず USER_XXX の値を取ること
 
-    TO_BATTLE_SCENE: 'TO_BATTLE_SCENE',
+    TO_SELECT_SCENE: 'USER_TO_SELECT_SCENE',
 
-    TO_SKILL_SCENE: 'TO_SKILL_SCENE',
+    TO_BATTLE_SCENE: 'USER_TO_BATTLE_SCENE',
 
-    TO_CHANGE_SCENE: 'TO_CHANGE_SCENE',
+    TO_SKILL_SCENE: 'USER_TO_SKILL_SCENE',
 
-    TO_CONFIRM_SCENE: 'TO_CONFIRM_SCENE',
+    TO_CHANGE_SCENE: 'USER_TO_CHANGE_SCENE',
 
-    CONFIRM_OK: 'CONFIRM_OK',
+    TO_CONFIRM_SCENE: 'USER_TO_CONFIRM_SCENE',
 
-    CONFIRM_CANCEL: 'CONFIRM_CANCEL'
+    CONFIRM_OK: 'USER_CONFIRM_OK',
+
+    CONFIRM_CANCEL: 'USER_CONFIRM_CANCEL',
+
+    SELECT_SKILL: 'USER_SELECT_SKILL',
+
+    SELECT_CHANGE: 'USER_SELECT_CHANGE',
+
+    SELECT_RESIGN_CHECK: 'USER_SELECT_RESIGN_CHECK',
+
+    SELECT_RESIGN_OK: 'USER_SELECT_RESIGN_OK'
 
 };
 module.exports = exports['default'];
@@ -752,7 +957,7 @@ var BrowserAnnouncer = (function (_ConsoleAnnouncer) {
     }, {
         key: '_createPPLabel',
         value: function _createPPLabel(pokemon, skillIndex) {
-            return pokemon.getPP(skillIndex) + ' / ' + _rulePokemonUtil2['default'].calcPP(pokemon.skillList[skillIndex].basePP, 3);
+            return 'PP： ' + ('  ' + pokemon.getPP(skillIndex)).slice(-2);
         }
     }, {
         key: '_createElementClassName',
@@ -840,6 +1045,10 @@ var BrowserAnnouncer = (function (_ConsoleAnnouncer) {
                 var statusAilmentID = playerLabel + '-active-pokemon-status-ailment';
                 var elementFieldID = playerLabel + '-active-pokemon-element';
                 var partyFieldID = 'icon-' + playerLabel + '-pokemon';
+                if (leftSide) {
+                    var hpCountID = 'player-active-pokemon-hp-count';
+                    _this3._view.getElementById(hpCountID).textContent = activePokemon.activeH;
+                }
                 _this3._view.getElementById(nameID).textContent = activePokemon.name;
                 _this3._view.getElementById(itemID).src = '../image/item/item-blank.png';
                 _this3._view.getElementById(statusAilmentID).textContent = activePokemon.statusAilment.label;
@@ -900,6 +1109,68 @@ var BrowserAnnouncer = (function (_ConsoleAnnouncer) {
             });
         }
     }, {
+        key: '_onReturnToHandBySkill',
+        value: function _onReturnToHandBySkill(info, playerID) {
+            _get(Object.getPrototypeOf(BrowserAnnouncer.prototype), '_onReturnToHandBySkill', this).call(this, info, playerID);
+            var message = '<span class="request-to-user">交代先のポケモンを選択してください</span>';
+            this._write(message);
+        }
+    }, {
+        key: '_onReturnToHandByEjectButton',
+        value: function _onReturnToHandByEjectButton(info, playerID) {
+            _get(Object.getPrototypeOf(BrowserAnnouncer.prototype), '_onReturnToHandByEjectButton', this).call(this, info, playerID);
+            var message = '<span class="request-to-user">交代先のポケモンを選択してください</span>';
+            this._write(message);
+        }
+    }, {
+        key: '_onChangeForNext',
+        value: function _onChangeForNext(info, playerID) {
+            if (playerID.value === info.getMainPlayerID().value) {
+                var message = '<span class="request-to-user">交代先のポケモンを選択してください</span>';
+                this._write(message);
+            }
+        }
+    }, {
+        key: '_onPokemonDamagedBySkill',
+        value: function _onPokemonDamagedBySkill(info, playerID, damage) {
+            this._updateHP(this._view, info, playerID);
+            _get(Object.getPrototypeOf(BrowserAnnouncer.prototype), '_onPokemonDamagedBySkill', this).call(this, info, playerID, damage);
+        }
+    }, {
+        key: '_onPokemonDamagedByRecoil',
+        value: function _onPokemonDamagedByRecoil(info, playerID, damage) {
+            this._updateHP(this._view, info, playerID);
+            _get(Object.getPrototypeOf(BrowserAnnouncer.prototype), '_onPokemonDamagedByRecoil', this).call(this, info, playerID, damage);
+        }
+    }, {
+        key: '_onConfirmResign',
+        value: function _onConfirmResign(info, playerID) {
+            var message = '<span class="warning-to-user">勝負を諦めて降参しますか？</span>';
+            this._write(message);
+        }
+    }, {
+        key: '_onComeIntoPlay',
+        value: function _onComeIntoPlay(info, playerID) {
+            var leftSide = playerID.value === info.getMainPlayerID().value;
+            var playerLabel = leftSide ? 'player' : 'opponent';
+            var activePokemon = info.getActivePokemon(playerID);
+            var activePokemonIconID = 'icon-' + playerLabel + '-active-pokemon';
+            var nameID = playerLabel + '-active-pokemon-name';
+            var itemID = playerLabel + '-active-pokemon-item';
+            var statusAilmentID = playerLabel + '-active-pokemon-status-ailment';
+            var elementFieldID = playerLabel + '-active-pokemon-element';
+            if (leftSide) {
+                var hpCountID = 'player-active-pokemon-hp-count';
+                this._view.getElementById(hpCountID).textContent = activePokemon.maxH.toString();
+            }
+            this._view.getElementById(nameID).textContent = activePokemon.name;
+            this._view.getElementById(itemID).src = '../image/item/item-blank.png';
+            this._view.getElementById(statusAilmentID).textContent = activePokemon.statusAilment.label;
+            this._setPokemonElement(this._view, elementFieldID, activePokemon);
+            this._view.getElementById(activePokemonIconID).src = '../image/pokemon/' + ('0000' + activePokemon.pokemonID).slice(-4) + '.png';
+            _get(Object.getPrototypeOf(BrowserAnnouncer.prototype), '_onComeIntoPlay', this).call(this, info, playerID);
+        }
+    }, {
         key: '_onSelectPokemon',
         value: function _onSelectPokemon(target, index) {
             this._onUpdateParty(target.party);
@@ -940,6 +1211,18 @@ var BrowserAnnouncer = (function (_ConsoleAnnouncer) {
             elementList.forEach(function (element) {
                 elementField.appendChild(_this6._createElementTag(view, element));
             });
+        }
+    }, {
+        key: '_updateHP',
+        value: function _updateHP(view, info, playerID) {
+            var activePokemon = info.getActivePokemon(playerID);
+            var leftSide = playerID.value === info.getMainPlayerID().value;
+            var playerLabel = leftSide ? 'player' : 'opponent';
+            var percentage = Math.ceil(activePokemon.activeH / activePokemon.maxH * 100);
+            view.getElementById(playerLabel + '-active-pokemon-hp').style.width = percentage + '%';
+            if (leftSide) {
+                view.getElementById('player-active-pokemon-hp-count').textContent = activePokemon.activeH;
+            }
         }
     }]);
 
@@ -1012,6 +1295,9 @@ var ConsoleAnnouncer = (function (_Observer) {
                 case _eventMessageEvent2['default'].TURN_READY:
                     this._onTurnReady(param.info, param.playerID);
                     break;
+                case _eventMessageEvent2['default'].TURN_START:
+                    this._onTurnStart(param.info);
+                    break;
                 case _eventMessageEvent2['default'].GAME_ALREADY_STARTED:
                     this._onGameAlreadyStarted(param.info);
                     break;
@@ -1022,13 +1308,16 @@ var ConsoleAnnouncer = (function (_Observer) {
                     this._onGameForceQuit(param.info);
                     break;
                 case _eventMessageEvent2['default'].REQUEST_SKILL_MENU:
-                    this._onRequestSkillMenu(param.info, param.playerID);
+                    this._onRequestSkillMenu(param.info, param.playerID, param.value);
                     break;
                 case _eventMessageEvent2['default'].REQUEST_BATTLE_INFO:
                     this._onRequestBattleInfo(param.info, param.playerID);
                     break;
                 case _eventMessageEvent2['default'].REQUEST_CHANGE_MENU:
-                    this._onRequestChangeMenu(param.info, param.playerID);
+                    this._onRequestChangeMenu(param.info, param.playerID, param.value);
+                    break;
+                case _eventMessageEvent2['default'].CONFIRM_RESIGN:
+                    this._onConfirmResign(param.info, param.playerID);
                     break;
                 case _eventMessageEvent2['default'].POKEMON_ALREADY_DEAD:
                     this._onPokemonAlreadyDead(param.info, param.playerID);
@@ -1074,6 +1363,9 @@ var ConsoleAnnouncer = (function (_Observer) {
                     break;
                 case _eventMessageEvent2['default'].RETURN_TO_HAND:
                     this._onReturnToHand(param.info, param.playerID);
+                    break;
+                case _eventMessageEvent2['default'].RETURN_TO_HAND_BY_SKILL:
+                    this._onReturnToHandBySkill(param.info, param.playerID);
                     break;
                 case _eventMessageEvent2['default'].RETURN_TO_HAND_BY_EJECT_BUTTON:
                     this._onReturnToHandByEjectButton(param.info, param.playerID);
@@ -1194,8 +1486,25 @@ var ConsoleAnnouncer = (function (_Observer) {
     }, {
         key: '_onTurnReady',
         value: function _onTurnReady(info, playerID) {
-            var message = '行動を選択してください';
-            this._write(message);
+            var opponentID = playerID.opponentID;
+            var playerName = info.getPlayer(playerID).name;
+            var opponentName = info.getPlayer(opponentID).name;
+            var playerActivePokemon = info.getActivePokemon(playerID);
+            var opponentActivePokemon = info.getActivePokemon(opponentID);
+            var playerActivePokemonH = playerActivePokemon.activeH;
+            var playerActivePokemonMaxH = playerActivePokemon.maxH;
+            var buffer = [];
+            buffer.push("---- * ---- * ---- * ---- * ----");
+            buffer.push(playerName + '： ' + playerActivePokemon.name + ' (HP：' + playerActivePokemonH + ' / ' + playerActivePokemonMaxH + ') ' + playerActivePokemon.statusAilment.label);
+            buffer.push(opponentName + '： ' + opponentActivePokemon.name);
+            buffer.push('行動を選択してください');
+            buffer.push('skill / change / info / resign');
+            this._write(buffer.join('\n'));
+        }
+    }, {
+        key: '_onTurnStart',
+        value: function _onTurnStart(info) {
+            this._resetMessage();
         }
     }, {
         key: '_onGameAlreadyStarted',
@@ -1220,10 +1529,35 @@ var ConsoleAnnouncer = (function (_Observer) {
         value: function _onRequestBattleInfo(info, playerID) {}
     }, {
         key: '_onRequestSkillMenu',
-        value: function _onRequestSkillMenu(info, playerID) {}
+        value: function _onRequestSkillMenu(info, playerID, cancelable) {
+            var activePokemon = info.getActivePokemon(playerID);
+            var buffer = [];
+            buffer.push("使用するスキルの番号を選んでください：");
+            activePokemon.skillList.forEach(function (skill, index) {
+                buffer.push('  ' + (index + 1) + '： ' + skill.name + '  (タイプ：' + skill.elementList[0].label + ') [PP：' + activePokemon.getPP(index) + ']');
+            });
+            if (cancelable) {
+                buffer.push("  0： キャンセル");
+            }
+            this._write(buffer.join('\n'));
+        }
     }, {
         key: '_onRequestChangeMenu',
-        value: function _onRequestChangeMenu(info, playerID) {}
+        value: function _onRequestChangeMenu(info, playerID, cancelable) {
+            var party = info.getParty(playerID);
+            var buffer = [];
+            buffer.push("交代先のポケモンの番号を選んでください：");
+            party.forEachSelected(function (pokemon, index) {
+                buffer.push('  ' + (index + 1) + '： ' + pokemon.name + '  (HP：' + pokemon.activeH + ' / ' + pokemon.maxH + ') ' + pokemon.statusAilment.label);
+            });
+            if (cancelable) {
+                buffer.push("  0： キャンセル");
+            }
+            this._write(buffer.join('\n'));
+        }
+    }, {
+        key: '_onConfirmResign',
+        value: function _onConfirmResign(info, playerID) {}
     }, {
         key: '_onPokemonAlreadyDead',
         value: function _onPokemonAlreadyDead(info, playerID) {
@@ -1236,7 +1570,8 @@ var ConsoleAnnouncer = (function (_Observer) {
             var pokemon = info.getActivePokemon(playerID);
             var pokemonName = pokemon.name;
             var activeH = pokemon.activeH;
-            var message = pokemonName + 'はダメージを受けた！ (' + activeH + ' - ' + damage + ' -> ' + Math.max(activeH - damage, 0) + ')';
+            var detail = playerID.value === info.getMainPlayerID().value ? ' (' + activeH + ' - ' + damage + ' -> ' + Math.max(activeH - damage, 0) + ')' : '';
+            var message = pokemonName + 'はダメージを受けた！' + detail;
             this._write(message);
         }
     }, {
@@ -1245,7 +1580,8 @@ var ConsoleAnnouncer = (function (_Observer) {
             var pokemon = info.getActivePokemon(playerID);
             var pokemonName = pokemon.name;
             var activeH = pokemon.activeH;
-            var message = pokemonName + 'は反動によるダメージを受けた！ (' + activeH + ' - ' + damage + ' -> ' + Math.max(activeH - damage, 0) + ')';
+            var detail = playerID.value === info.getMainPlayerID().value ? ' (' + activeH + ' - ' + damage + ' -> ' + Math.max(activeH - damage, 0) + ')' : '';
+            var message = pokemonName + 'は反動によるダメージを受けた！' + detail;
             this._write(message);
         }
     }, {
@@ -1337,6 +1673,14 @@ var ConsoleAnnouncer = (function (_Observer) {
             this._write(message);
         }
     }, {
+        key: '_onReturnToHandBySkill',
+        value: function _onReturnToHandBySkill(info, playerID) {
+            var playerName = info.getPlayer(playerID).name;
+            var pokemonName = info.getActivePokemon(playerID).name;
+            var message = pokemonName + 'は' + playerName + 'のもとに戻っていく…';
+            this._write(message);
+        }
+    }, {
         key: '_onReturnToHandByEjectButton',
         value: function _onReturnToHandByEjectButton(info, playerID) {
             var playerName = info.getPlayer(playerID).name;
@@ -1347,8 +1691,10 @@ var ConsoleAnnouncer = (function (_Observer) {
     }, {
         key: '_onChangeForNext',
         value: function _onChangeForNext(info, playerID) {
-            var message = '交代先のポケモンを選んでください';
-            this._write(message);
+            if (playerID.value === info.getMainPlayerID().value) {
+                var message = '交代先のポケモンを選択してください';
+                this._write(message);
+            }
         }
     }, {
         key: '_onCIP_Intimidate',
@@ -1412,16 +1758,16 @@ var ConsoleAnnouncer = (function (_Observer) {
     }, {
         key: '_onRankdown',
         value: function _onRankdown(info, playerID, key) {
-            var value = arguments.length <= 3 || arguments[3] === undefined ? 1 : arguments[3];
+            var value = arguments.length <= 3 || arguments[3] === undefined ? -1 : arguments[3];
 
             var pokemon = info.getActivePokemon(playerID);
             var pokemonName = pokemon.name;
             var statusName = this._toStatusName(key);
             var how = function how(value) {
                 switch (value) {
-                    case 2:
+                    case -2:
                         return 'がくっと';
-                    case 3:
+                    case -3:
                         return 'がくーんと';
                     default:
                         return '';
@@ -3644,6 +3990,8 @@ exports['default'] = {
     REQUEST_CHANGE_MENU: 'GAME_REQUEST_CHANGE_MENU',
 
     RETURN_TO_HAND: 'GAME_RETURN_TO_HAND',
+    RETURN_TO_HAND_BY_SKILL: 'GAME_RETURN_TO_HAND_BY_SKILL',
+    RETURN_TO_HAND_BY_EJECT_BUTTON: 'GAME_RETURN_TO_HAND_BY_EJECT_BUTTON',
     CHANGE_FOR_NEXT: 'GAME_CHANGE_FOR_NEXT'
 
 };
@@ -3676,6 +4024,8 @@ exports['default'] = {
     REQUEST_SKILL_MENU: 'MESSAGE_REQUEST_SKILL_MENU',
     REQUEST_CHANGE_MENU: 'MESSAGE_REQUEST_CHANGE_MENU',
 
+    CONFIRM_RESIGN: 'MESSAGE_CONFIRM_RESIGN',
+
     POKEMON_ALREADY_DEAD: 'MESSAGE_POKEMON_ALREADY_DEAD',
     POKEMON_DAMAGED_BY_SKILL: 'MESSAGE_POKEMON_DAMAGED_BY_SKILL',
     POKEMON_DAMAGED_BY_RECOIL: 'MESSAGE_POKEMON_DAMAGED_BY_RECOIL',
@@ -3695,6 +4045,7 @@ exports['default'] = {
 
     COME_INTO_PLAY: 'MESSAGE_COME_INTO_PLAY',
     RETURN_TO_HAND: 'MESSAGE_RETURN_TO_HAND',
+    RETURN_TO_HAND_BY_SKILL: 'MESSAGE_RETURN_TO_HAND_BY_SKILL',
     RETURN_TO_HAND_BY_EJECT_BUTTON: 'MESSAGE_RETURN_TO_HAND_BY_EJECT_BUTTON',
     CHANGE_FOR_NEXT: 'MESSAGE_CHANGE_FOR_NEXT',
 
@@ -3752,7 +4103,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x3, _x4, _x5) { var _again = true; _function: while (_again) { var object = _x3, property = _x4, receiver = _x5; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x3 = parent; _x4 = property; _x5 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x7, _x8, _x9) { var _again = true; _function: while (_again) { var object = _x7, property = _x8, receiver = _x9; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x7 = parent; _x8 = property; _x9 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -3764,9 +4115,13 @@ var _utilObservable = require('../util/observable');
 
 var _utilObservable2 = _interopRequireDefault(_utilObservable);
 
-var _action = require('./action');
+var _action2 = require('./action');
 
-var _action2 = _interopRequireDefault(_action);
+var _action3 = _interopRequireDefault(_action2);
+
+var _eventGameEvent = require('./event/game-event');
+
+var _eventGameEvent2 = _interopRequireDefault(_eventGameEvent);
 
 var _gameStatus = require('./game-status');
 
@@ -3815,49 +4170,37 @@ var GameMaster = (function (_Observable) {
     }, {
         key: 'change',
         value: function change(playerID, targetPokemonIndex) {
-            if (this._status !== _gameStatus2['default'].BATTLE) {
-                this._notifyAllObserver(_eventMessageEvent2['default'].GAME_NOT_STARTED);
-                throw new Error("Game not started. [change]");
-            }
-            if (this._info.isActionSelected(playerID)) {
-                throw new Error("Already acted. [change]");
-            }
-            this._info.setAction(playerID, _action2['default'].CHANGE, targetPokemonIndex);
+            this._action(playerID, _action3['default'].CHANGE, targetPokemonIndex);
             this._postActionSelected();
         }
     }, {
         key: 'changeBySkill',
-        value: function changeBySkill(playerID, targetPokemonIndex, actionTable) {
-            if (this._status !== _gameStatus2['default'].BATTLE) {
-                this._notifyAllObserver(_eventMessageEvent2['default'].GAME_NOT_STARTED);
-                throw new Error("Game not started. [changeBySkill]");
-            }
-            if (this._info.isActionSelected(playerID)) {
-                throw new Error("Already acted. [changeBySkill]");
-            }
-            this._info.setAction(playerID, _action2['default'].CHANGE_BY_SKILL, targetPokemonIndex);
-            this._controller.turn(this._info, actionTable);
+        value: function changeBySkill(playerID, targetPokemonIndex) {
+            this._action(playerID, _action3['default'].CHANGE_BY_SKILL, targetPokemonIndex);
+            this._postActionSelected(1);
         }
     }, {
         key: 'close',
         value: function close() {
-            try {
-                this._controller.close();
-            } finally {
-                this._status = _gameStatus2['default'].CLOSED;
+            this._controller.close();
+            this._status = _gameStatus2['default'].CLOSED;
+        }
+    }, {
+        key: 'confirmResign',
+        value: function confirmResign(playerID) {
+            if (this._status !== _gameStatus2['default'].BATTLE) {
+                this._notifyAllObserver(_eventMessageEvent2['default'].GAME_NOT_STARTED);
+                throw new Error("Game not started. [confirmResign]");
             }
+            this._notifyAllObserver(_eventMessageEvent2['default'].CONFIRM_RESIGN, playerID);
         }
     }, {
         key: 'end',
         value: function end(force) {
-            if (this._status === _gameStatus2['default'].IDLE) {
-                return;
-            }
-            try {
+            if (this._status !== _gameStatus2['default'].IDLE) {
                 if (force) {
                     this._notifyAllObserver(_eventMessageEvent2['default'].GAME_FORCE_QUIT);
                 }
-            } finally {
                 this._status = _gameStatus2['default'].IDLE;
             }
         }
@@ -3880,17 +4223,7 @@ var GameMaster = (function (_Observable) {
     }, {
         key: 'next',
         value: function next(playerID, targetPokemonIndex) {
-            if (this._status !== _gameStatus2['default'].BATTLE) {
-                this._notifyAllObserver(_eventMessageEvent2['default'].GAME_NOT_STARTED);
-                throw new Error("Game not started. [change]");
-            }
-            if (this._info.isActionSelected(playerID)) {
-                throw new Error("Already acted. [next]");
-            }
-            if (!this._info.getActivePokemon(playerID).isDead()) {
-                throw new Error("Player's pokemon is not dead.");
-            }
-            this._info.setAction(playerID, _action2['default'].NEXT, targetPokemonIndex);
+            this._action(playerID, _action3['default'].NEXT, targetPokemonIndex);
             this._postActionSelected(this._info.countDeadActivePokemon());
         }
     }, {
@@ -3907,41 +4240,37 @@ var GameMaster = (function (_Observable) {
     }, {
         key: 'requestChangeMenu',
         value: function requestChangeMenu(playerID) {
+            var cancelable = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
             if (this._status !== _gameStatus2['default'].BATTLE) {
                 this._notifyAllObserver(_eventMessageEvent2['default'].GAME_NOT_STARTED);
                 throw new Error("Game not started. [requestChangeMenu]");
             }
-            this._notifyAllObserver(_eventMessageEvent2['default'].REQUEST_CHANGE_MENU, playerID);
+            this._notifyAllObserver(_eventMessageEvent2['default'].REQUEST_CHANGE_MENU, playerID, cancelable);
+            this._notifyAllObserver(_eventGameEvent2['default'].REQUEST_CHANGE_MENU, playerID, cancelable);
         }
     }, {
         key: 'requestSkillMenu',
         value: function requestSkillMenu(playerID) {
+            var cancelable = arguments.length <= 1 || arguments[1] === undefined ? true : arguments[1];
+
             if (this._status !== _gameStatus2['default'].BATTLE) {
                 this._notifyAllObserver(_eventMessageEvent2['default'].GAME_NOT_STARTED);
                 throw new Error("Game not started. [requestSkillMenu]");
             }
-            this._notifyAllObserver(_eventMessageEvent2['default'].REQUEST_SKILL_MENU, playerID);
+            this._notifyAllObserver(_eventMessageEvent2['default'].REQUEST_SKILL_MENU, playerID, cancelable);
+            this._notifyAllObserver(_eventGameEvent2['default'].REQUEST_SKILL_MENU, playerID, cancelable);
         }
     }, {
         key: 'resign',
         value: function resign(playerID) {
-            if (this._status !== _gameStatus2['default'].BATTLE) {
-                this._notifyAllObserver(_eventMessageEvent2['default'].GAME_NOT_STARTED);
-                throw new Error("Game not started. [resign]");
-            }
-            this._controller.resign(this._info, playerID);
+            this._action(playerID, _action3['default'].RESIGN);
+            this._postActionSelected();
         }
     }, {
         key: 'skill',
         value: function skill(playerID, targetSkillIndex) {
-            if (this._status !== _gameStatus2['default'].BATTLE) {
-                this._notifyAllObserver(_eventMessageEvent2['default'].GAME_NOT_STARTED);
-                throw new Error("Game not started. [skill]");
-            }
-            if (this._info.isActionSelected(playerID)) {
-                throw new Error("Already acted. [skill]");
-            }
-            this._info.setAction(playerID, _action2['default'].SKILL, targetSkillIndex);
+            this._action(playerID, _action3['default'].SKILL, targetSkillIndex);
             this._postActionSelected();
         }
     }, {
@@ -3954,6 +4283,17 @@ var GameMaster = (function (_Observable) {
             }
             this._controller.start(this._info, this.PLAYER_ID);
             this._status = _gameStatus2['default'].BATTLE;
+        }
+    }, {
+        key: '_action',
+        value: function _action(playerID, actionType) {
+            var target = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+
+            if (this._status !== _gameStatus2['default'].BATTLE) {
+                this._notifyAllObserver(_eventMessageEvent2['default'].GAME_NOT_STARTED);
+                throw new Error('Game not started : ' + actionType);
+            }
+            this._info.setAction(playerID, actionType, target);
         }
     }, {
         key: '_createController',
@@ -3980,8 +4320,9 @@ var GameMaster = (function (_Observable) {
         key: '_notifyAllObserver',
         value: function _notifyAllObserver(event) {
             var playerID = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
+            var value = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
 
-            this.notifyAllObserver({ event: event, info: this._info, playerID: playerID });
+            this.notifyAllObserver({ event: event, info: this._info, playerID: playerID, value: value });
         }
     }, {
         key: '_postActionSelected',
@@ -4009,7 +4350,7 @@ var GameMaster = (function (_Observable) {
 
 exports['default'] = GameMaster;
 module.exports = exports['default'];
-},{"../util/observable":41,"./action":8,"./event/message-event":16,"./game-status":18,"./pokemon-controller":20,"./pokemon-info":22,"./rule/player":29,"./rule/playerID":30}],18:[function(require,module,exports){
+},{"../util/observable":41,"./action":8,"./event/game-event":15,"./event/message-event":16,"./game-status":18,"./pokemon-controller":20,"./pokemon-info":22,"./rule/player":29,"./rule/playerID":30}],18:[function(require,module,exports){
 /**
  * game-status.jsx
  */
@@ -4202,21 +4543,13 @@ var PokemonController = (function (_Observable) {
             this._notifyAllObserver(_eventGameEvent2['default'].GAME_READY, info, playerID);
         }
     }, {
-        key: 'resign',
-        value: function resign(info, playerID) {
-            var winnerID = playerID.opponentID;
-            this._notifyAllObserver(_eventMessageEvent2['default'].RESIGN, info, playerID);
-            this._notifyAllObserver(_eventMessageEvent2['default'].GAME_SET, info, winnerID);
-            this._notifyAllObserver(_eventGameEvent2['default'].GAME_SET, info, winnerID);
-        }
-    }, {
         key: 'start',
         value: function start(info, playerID) {
             this._notifyAllObserver(_eventMessageEvent2['default'].GAME_START, info, playerID);
             this._notifyAllObserver(_eventGameEvent2['default'].GAME_START, info, playerID);
             var activePokemonList = info.getActivePokemonList();
-            this._notifyAllObserver(_eventMessageEvent2['default'].COME_INTO_PLAY, info, activePokemonList[1].playerID);
-            this._notifyAllObserver(_eventMessageEvent2['default'].COME_INTO_PLAY, info, activePokemonList[0].playerID);
+            this._notifyAllObserver(_eventMessageEvent2['default'].COME_INTO_PLAY, info, playerID.opponentID);
+            this._notifyAllObserver(_eventMessageEvent2['default'].COME_INTO_PLAY, info, playerID);
             this._cip(info, activePokemonList);
             this._notifyAllObserver(_eventMessageEvent2['default'].TURN_READY, info, playerID);
             this._notifyAllObserver(_eventGameEvent2['default'].TURN_READY, info, playerID);
@@ -4226,9 +4559,15 @@ var PokemonController = (function (_Observable) {
         value: function turn(info) {
             var _this = this;
 
-            info.turnContinue();
+            if (info.isTurnBreak()) {
+                info.turnContinue();
+            } else {
+                this._notifyAllObserver(_eventMessageEvent2['default'].TURN_START, info);
+            }
+
             var changeActionTable = {};
             var skillActionTable = {};
+            var resignTable = {};
             var actionTable = info.actionTable;
             Object.keys(actionTable).forEach(function (key) {
                 var action = actionTable[key];
@@ -4241,22 +4580,36 @@ var PokemonController = (function (_Observable) {
                     case _action2['default'].NEXT:
                         changeActionTable[key] = action;
                         break;
+                    case _action2['default'].RESIGN:
+                        resignTable[key] = action;
+                        break;
                     default:
                         throw new Error();
                 }
             });
-            this._change(info, changeActionTable);
-            this._skill(info, skillActionTable);
+
+            this._resign(info, resignTable);
 
             if (!info.isGameOver()) {
+                this._change(info, changeActionTable);
+                this._skill(info, skillActionTable);
+            }
+            if (!info.isGameOver()) {
                 info.turnInfo.downedPokemonList.forEach(function (pokemon) {
+                    info.turnBreak();
                     var playerID = pokemon.playerID;
                     _this._notifyAllObserver(_eventMessageEvent2['default'].CHANGE_FOR_NEXT, info, playerID);
                     _this._notifyAllObserver(_eventGameEvent2['default'].CHANGE_FOR_NEXT, info, playerID);
                 });
             }
-            if (!info.isTurnBreak()) {
+            if (!info.isGameOver() && !info.isTurnBreak()) {
+                var readyToNextTurn = !info.turnInfo.isAnyPokemonDowned();
                 info.resetTurnInfo();
+                if (readyToNextTurn) {
+                    var playerID = info.getMainPlayerID();
+                    this._notifyAllObserver(_eventMessageEvent2['default'].TURN_READY, info, playerID);
+                    this._notifyAllObserver(_eventGameEvent2['default'].TURN_READY, info, playerID);
+                }
             }
         }
     }, {
@@ -4444,6 +4797,29 @@ var PokemonController = (function (_Observable) {
             this.notifyAllObserver({ event: event, info: info, playerID: playerID, value: value });
         }
     }, {
+        key: '_resign',
+        value: function _resign(info, actionTable) {
+            var keyList = Object.keys(actionTable);
+            switch (keyList.length) {
+                case 2:
+                case 1:
+                    {
+                        info.gameOver();
+                        var action = actionTable[_utilCommonUtil2['default'].shuffleList(keyList)[0]];
+                        var playerID = action.playerID;
+                        var winnerID = playerID.opponentID;
+                        this._notifyAllObserver(_eventMessageEvent2['default'].RESIGN, info, playerID);
+                        this._notifyAllObserver(_eventMessageEvent2['default'].GAME_SET, info, winnerID);
+                        this._notifyAllObserver(_eventGameEvent2['default'].GAME_SET, info, winnerID);
+                    }
+                    break;
+                case 0:
+                    break;
+                default:
+                    throw new Error();
+            }
+        }
+    }, {
         key: '_returnToHand',
         value: function _returnToHand(info, playerID) {
             var message = arguments.length <= 2 || arguments[2] === undefined ? _eventMessageEvent2['default'].RETURN_TO_HAND : arguments[2];
@@ -4628,10 +5004,10 @@ var PokemonController = (function (_Observable) {
                 // スキルやアイテムの効果による交代
                 switch (defenderPokemon.item.name) {
                     case '脱出ボタン':
-                        if (!info.isLastPokemon(opponentID)) {
+                        if (!defenderPokemon.isDead() && !info.isLastPokemon(opponentID)) {
                             info.turnBreak();
                             this._returnToHand(info, opponentID, _eventMessageEvent2['default'].RETURN_TO_HAND_BY_EJECT_BUTTON);
-                            this._notifyAllObserver(_eventGameEvent2['default'].RETURN_TO_HAND, info, opponentID);
+                            this._notifyAllObserver(_eventGameEvent2['default'].RETURN_TO_HAND_BY_EJECT_BUTTON, info, opponentID);
                         }
                         break;
                     case 'レッドカード':
@@ -4642,10 +5018,11 @@ var PokemonController = (function (_Observable) {
                             case 'とんぼ返り':
                             case 'ボルトチェンジ':
                                 // 相手が脱出した場合交代しない
-                                if (!info.isLastPokemon(playerID)) {
+                                // TODO 命の珠の反動との兼ね合い
+                                if (!attackerPokemon.isDead() && !info.isLastPokemon(playerID)) {
                                     info.turnBreak();
-                                    this._returnToHand(info, playerID);
-                                    this._notifyAllObserver(_eventGameEvent2['default'].RETURN_TO_HAND, info, playerID);
+                                    this._returnToHand(info, playerID, _eventMessageEvent2['default'].RETURN_TO_HAND_BY_SKILL);
+                                    this._notifyAllObserver(_eventGameEvent2['default'].RETURN_TO_HAND_BY_SKILL, info, playerID);
                                 }
                                 break;
                             default:
@@ -4945,6 +5322,11 @@ var PokemonInfo = (function () {
             return this._field.getGlobalEffect(key);
         }
     }, {
+        key: 'getMainPlayerID',
+        value: function getMainPlayerID() {
+            return this._playerTable[1].playerID;
+        }
+    }, {
         key: 'getParty',
         value: function getParty(playerID) {
             return _utilCommonUtil2['default'].deepCopy(this._partyTable[playerID.value]);
@@ -4995,7 +5377,9 @@ var PokemonInfo = (function () {
         }
     }, {
         key: 'setAction',
-        value: function setAction(playerID, actionType, target) {
+        value: function setAction(playerID, actionType) {
+            var target = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+
             this._turnInfo.setAction(playerID, actionType, target);
         }
     }, {
@@ -7100,7 +7484,7 @@ var Pokemon = (function () {
     }, {
         key: 'healMax',
         value: function healMax() {
-            this._activeH = _pokemonUtil2['default'].calcActiveValue('H', this);
+            this._activeH = this.maxH;
         }
     }, {
         key: 'isAilment',
@@ -7119,7 +7503,7 @@ var Pokemon = (function () {
     }, {
         key: 'isFullH',
         value: function isFullH() {
-            return this._activeH === _pokemonUtil2['default'].calcActiveValue('H', this);
+            return this._activeH === this.maxH;
         }
     }, {
         key: 'isName',
@@ -7287,6 +7671,11 @@ var Pokemon = (function () {
         },
         set: function set(value) {
             this._activeH = value ? _utilCommonUtil2['default'].deepCopy(value) : 0;
+        }
+    }, {
+        key: 'maxH',
+        get: function get() {
+            return _pokemonUtil2['default'].calcActiveValue('H', this);
         }
     }, {
         key: 'ppTable',
@@ -7683,13 +8072,20 @@ var TurnInfo = (function () {
             return _utilCommonUtil2['default'].deepCopy(this._actionTable[playerID.value]);
         }
     }, {
+        key: 'isAnyPokemonDowned',
+        value: function isAnyPokemonDowned() {
+            return this._downedPokemonList.length !== 0;
+        }
+    }, {
         key: 'isTurnBreak',
         value: function isTurnBreak() {
             return _utilCommonUtil2['default'].deepCopy(this._turnBreak);
         }
     }, {
         key: 'setAction',
-        value: function setAction(playerID, actionType, target) {
+        value: function setAction(playerID, actionType) {
+            var target = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
+
             this._actionTable[playerID.value] = {
                 playerID: _utilCommonUtil2['default'].deepCopy(playerID),
                 type: _utilCommonUtil2['default'].deepCopy(actionType),

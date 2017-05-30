@@ -56,7 +56,6 @@ var GameSceneController = (function () {
             field.style.height = value + 'px';
             field.style['max-height'] = value + 'px';
             field.style['min-height'] = value + 'px';
-            field.scrollTop = field.scrollHeight;
         }
     }, {
         key: '_changeToBattleScene',

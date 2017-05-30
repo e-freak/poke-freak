@@ -242,6 +242,11 @@ span.request-to-user {
     color: #0000FF;
 }
 
+span.warning-to-user {
+    font-weight: bold;
+    color: #FF0000;
+}
+
 img.image-pokemon {
     margin-top: 3px;
     margin-bottom: 3px;

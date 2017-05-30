@@ -28,6 +28,10 @@ var _pokemonAnnouncerBrowserAnnouncer = require('../pokemon/announcer/browser-an
 
 var _pokemonAnnouncerBrowserAnnouncer2 = _interopRequireDefault(_pokemonAnnouncerBrowserAnnouncer);
 
+var _pokemonEventGameEvent = require('../pokemon/event/game-event');
+
+var _pokemonEventGameEvent2 = _interopRequireDefault(_pokemonEventGameEvent);
+
 var _pokemonGameMaster = require('../pokemon/game-master');
 
 var _pokemonGameMaster2 = _interopRequireDefault(_pokemonGameMaster);
@@ -68,6 +72,7 @@ var GameViewController = (function (_Observer) {
         this._menu = this._createMenuController(view);
         this._announcer = this._createAnnouncer(view);
         this._master = this._createGameMaster();
+        this._gameEvent = undefined;
         this._menu.addObserver(this);
         this._menu.addObserver(this._announcer);
         this._master.addObserver(this);
@@ -79,11 +84,13 @@ var GameViewController = (function (_Observer) {
         this._playerParty.select([0, 1, 2]);
         this._opponentParty.select([0, 1, 2]);
         this._started = false;
+        this._opponentPokemonIndex = 0;
     }
 
     _createClass(GameViewController, [{
         key: 'initialize',
         value: function initialize() {
+            this._menu.initialize();
             this._changeScene(_sceneType2['default'].SELECT);
             this._master.initialize('プレイヤー', '対戦相手');
             this._master.ready(this._playerParty, this._opponentParty);
@@ -118,6 +125,52 @@ var GameViewController = (function (_Observer) {
                     break;
                 case _eventUserEvent2['default'].CONFIRM_CANCEL:
                     this._menu.onConfirmCancel(target.confirmType);
+                    break;
+                case _eventUserEvent2['default'].SELECT_SKILL:
+                    this._master.skill(this._master.PLAYER_ID, param.value);
+                    this._master.skill(this._master.OPPONENT_ID, 0);
+                    break;
+                case _eventUserEvent2['default'].SELECT_CHANGE:
+                    switch (this._gameEvent) {
+                        case _pokemonEventGameEvent2['default'].CHANGE_FOR_NEXT:
+                            this._gameEvent = undefined;
+                            this._master.next(this._master.PLAYER_ID, param.value);
+                            break;
+                        case _pokemonEventGameEvent2['default'].RETURN_TO_HAND_BY_SKILL:
+                        case _pokemonEventGameEvent2['default'].RETURN_TO_HAND_BY_EJECT_BUTTON:
+                            this._gameEvent = undefined;
+                            this._master.changeBySkill(this._master.PLAYER_ID, param.value);
+                            break;
+                        default:
+                            this._master.change(this._master.PLAYER_ID, param.value);
+                            this._master.skill(this._master.OPPONENT_ID, 0);
+                            break;
+                    }
+                    break;
+                case _eventUserEvent2['default'].SELECT_RESIGN_CHECK:
+                    this._master.confirmResign(this._master.PLAYER_ID);
+                    break;
+                case _eventUserEvent2['default'].SELECT_RESIGN_OK:
+                    this._master.resign(this._master.PLAYER_ID);
+                    this._master.skill(this._master.OPPONENT_ID, 0);
+                    break;
+                case _pokemonEventGameEvent2['default'].CHANGE_FOR_NEXT:
+                    if (param.playerID.value === this._master.PLAYER_ID.value) {
+                        this._gameEvent = param.event;
+                        this._changeScene(_sceneType2['default'].CHANGE, true, true);
+                        this._master.requestChangeMenu(param.playerID, false);
+                    } else {
+                        this._master.next(param.playerID, this._opponentPokemonIndex + 1);
+                        this._opponentPokemonIndex++;
+                    }
+                    break;
+                case _pokemonEventGameEvent2['default'].RETURN_TO_HAND_BY_SKILL:
+                case _pokemonEventGameEvent2['default'].RETURN_TO_HAND_BY_EJECT_BUTTON:
+                    if (param.playerID.value === this._master.PLAYER_ID.value) {
+                        this._gameEvent = param.event;
+                        this._changeScene(_sceneType2['default'].CHANGE, true, true);
+                        this._master.requestChangeMenu(param.playerID, false);
+                    }
                     break;
                 default:
                     break;

@@ -12,7 +12,7 @@ Object.defineProperty(exports, '__esModule', {
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x5, _x6, _x7) { var _again = true; _function: while (_again) { var object = _x5, property = _x6, receiver = _x7; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x5 = parent; _x6 = property; _x7 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x9, _x10, _x11) { var _again = true; _function: while (_again) { var object = _x9, property = _x10, receiver = _x11; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x9 = parent; _x10 = property; _x11 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -45,6 +45,9 @@ var GameMenuController = (function (_Observable) {
         _get(Object.getPrototypeOf(GameMenuController.prototype), 'constructor', this).call(this);
         this._view = view;
         this._confirmType = _eventConfirmType2['default'].NONE;
+        this._selectedPokemonIndexList = [];
+        this._selectedSkillIndex = undefined;
+        this._selectedChangeIndex = undefined;
     }
 
     _createClass(GameMenuController, [{
@@ -64,7 +67,7 @@ var GameMenuController = (function (_Observable) {
                     this._changeToSkillScene();
                     break;
                 case _sceneType2['default'].CHANGE:
-                    this._changeToChangeScene();
+                    this._changeToChangeScene(disableCancelButton);
                     break;
                 case _sceneType2['default'].CONFIRM:
                     this._changeToConfirmScene(disableOKButton, disableCancelButton);
@@ -72,6 +75,25 @@ var GameMenuController = (function (_Observable) {
                 default:
                     throw new Error('Unknown scene : ' + scene);
             }
+        }
+    }, {
+        key: 'initialize',
+        value: function initialize() {
+            for (var i = 0; i < 6; i++) {
+                var frame = this._view.getElementById('image-player-pokemon-' + i);
+                frame.addEventListener('click', this.onClickSelectTarget.bind(this, i));
+            }
+            for (var i = 0; i < 4; i++) {
+                var frame = this._view.getElementById('frame-skill-' + i);
+                frame.addEventListener('click', this.onClickSkillFrame.bind(this, i));
+            }
+            for (var i = 0; i < 3; i++) {
+                var frame = this._view.getElementById('frame-pokemon-' + i);
+                frame.addEventListener('click', this.onClickChangeFrame.bind(this, i));
+            }
+            this._view.getElementById('button-skill').addEventListener('click', this.onClickBattleSkillButton.bind(this));
+            this._view.getElementById('button-change').addEventListener('click', this.onClickBattleChangeButton.bind(this));
+            this._view.getElementById('button-resign').addEventListener('click', this.onClickBattleResignButton.bind(this));
         }
     }, {
         key: 'onConfirmCancel',
@@ -94,7 +116,8 @@ var GameMenuController = (function (_Observable) {
             switch (confirmType) {
                 case _eventConfirmType2['default'].RESIGN:
                     this._confirmType = _eventConfirmType2['default'].GAME_SET;
-                    this._notifyAllObserver(_eventUserEvent2['default'].TO_CONFIRM_SCENE, false, true);
+                    this._notifyAllObserver(_eventUserEvent2['default'].SELECT_RESIGN_OK);
+                    this._notifyAllObserver(_eventUserEvent2['default'].TO_CONFIRM_SCENE, undefined, false, true);
                     break;
                 case _eventConfirmType2['default'].GAME_SET:
                     this._view.location.href = './title.html';
@@ -112,6 +135,7 @@ var GameMenuController = (function (_Observable) {
         key: 'onClickBattleResignButton',
         value: function onClickBattleResignButton() {
             this._confirmType = _eventConfirmType2['default'].RESIGN;
+            this._notifyAllObserver(_eventUserEvent2['default'].SELECT_RESIGN_CHECK);
             this._notifyAllObserver(_eventUserEvent2['default'].TO_CONFIRM_SCENE);
         }
     }, {
@@ -122,12 +146,27 @@ var GameMenuController = (function (_Observable) {
     }, {
         key: 'onClickChangeBackButton',
         value: function onClickChangeBackButton() {
+            this._unselectChange();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+        }
+    }, {
+        key: 'onClickChangeFrame',
+        value: function onClickChangeFrame(index) {
+            if (this._selectedChangeIndex !== index) {
+                this._unselectChange();
+                this._selectChange(index);
+                this._activateButton('button-ok', this.onClickChangeOKButton.bind(this));
+            } else {
+                this._unselectChange();
+                this._deactivateButton('button-ok');
+            }
         }
     }, {
         key: 'onClickChangeOKButton',
         value: function onClickChangeOKButton() {
+            var index = this._unselectChange();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].SELECT_CHANGE, index);
         }
     }, {
         key: 'onClickConfirmBackButton',
@@ -147,17 +186,60 @@ var GameMenuController = (function (_Observable) {
     }, {
         key: 'onClickSelectOKButton',
         value: function onClickSelectOKButton() {
+            var indexList = this._resetPokemonIndexList();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+            // this._notifyAllObserver(UserEvent.XXX, indexList);
+        }
+    }, {
+        key: 'onClickSelectTarget',
+        value: function onClickSelectTarget(index) {
+            var _this = this;
+
+            if (!this._selectedPokemonIndexList.includes(index)) {
+                if (this._selectedPokemonIndexList.length < 3) {
+                    this._selectedPokemonIndexList.push(index);
+                    var target = this._view.getElementById('image-player-pokemon-' + index);
+                    target.className = 'player-pokemon image-pokemon pokemon-selected';
+                }
+            } else {
+                this._selectedPokemonIndexList.some(function (value, i) {
+                    if (value === index) {
+                        _this._selectedPokemonIndexList.splice(i, 1);
+                    }
+                });
+                var target = this._view.getElementById('image-player-pokemon-' + index);
+                target.className = 'player-pokemon image-pokemon';
+            }
+            if (this._selectedPokemonIndexList.length === 3) {
+                this._activateButton('button-ok', this.onClickSelectOKButton.bind(this));
+            } else {
+                this._deactivateButton('button-ok');
+            }
         }
     }, {
         key: 'onClickSkillBackButton',
         value: function onClickSkillBackButton() {
+            this._unselectSkill();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+        }
+    }, {
+        key: 'onClickSkillFrame',
+        value: function onClickSkillFrame(index) {
+            if (this._selectedSkillIndex !== index) {
+                this._unselectSkill();
+                this._selectSkill(index);
+                this._activateButton('button-ok', this.onClickSkillOKButton.bind(this));
+            } else {
+                this._unselectSkill();
+                this._deactivateButton('button-ok');
+            }
         }
     }, {
         key: 'onClickSkillOKButton',
         value: function onClickSkillOKButton() {
+            var index = this._unselectSkill();
             this._notifyAllObserver(_eventUserEvent2['default'].TO_BATTLE_SCENE);
+            this._notifyAllObserver(_eventUserEvent2['default'].SELECT_SKILL, index);
         }
     }, {
         key: '_activateButton',
@@ -176,21 +258,27 @@ var GameMenuController = (function (_Observable) {
         value: function _changeToBattleScene() {
             this._view.getElementById('default-menu').style.display = 'none';
             this._view.getElementById('battle-menu').style.display = 'inline';
-            this._view.getElementById('button-skill').addEventListener('click', this.onClickBattleSkillButton.bind(this));
-            this._view.getElementById('button-change').addEventListener('click', this.onClickBattleChangeButton.bind(this));
-            this._view.getElementById('button-resign').addEventListener('click', this.onClickBattleResignButton.bind(this));
         }
     }, {
         key: '_changeToChangeScene',
         value: function _changeToChangeScene() {
+            var disableCancelButton = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
             this._view.getElementById('default-menu').style.display = 'inline';
             this._view.getElementById('battle-menu').style.display = 'none';
             this._deactivateButton('button-ok');
-            this._activateButton('button-back', this.onClickChangeBackButton.bind(this));
+            if (disableCancelButton) {
+                this._deactivateButton('button-back');
+            } else {
+                this._activateButton('button-back', this.onClickChangeBackButton.bind(this));
+            }
         }
     }, {
         key: '_changeToConfirmScene',
-        value: function _changeToConfirmScene(disableOKButton, disableCancelButton) {
+        value: function _changeToConfirmScene() {
+            var disableOKButton = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+            var disableCancelButton = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
             this._view.getElementById('default-menu').style.display = 'inline';
             this._view.getElementById('battle-menu').style.display = 'none';
             if (disableOKButton) {
@@ -226,15 +314,13 @@ var GameMenuController = (function (_Observable) {
     }, {
         key: '_notifyAllObserver',
         value: function _notifyAllObserver(event) {
-            var disableOKButton = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
-            var disableCancelButton = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+            var value = arguments.length <= 1 || arguments[1] === undefined ? undefined : arguments[1];
+            var disableOKButton = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+            var disableCancelButton = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
             this._removeAllEventListener(this._view.getElementById('button-ok'));
             this._removeAllEventListener(this._view.getElementById('button-back'));
-            this._removeAllEventListener(this._view.getElementById('button-skill'));
-            this._removeAllEventListener(this._view.getElementById('button-change'));
-            this._removeAllEventListener(this._view.getElementById('button-resign'));
-            this.notifyAllObserver({ event: event, disableOKButton: disableOKButton, disableCancelButton: disableCancelButton });
+            this.notifyAllObserver({ event: event, value: value, disableOKButton: disableOKButton, disableCancelButton: disableCancelButton });
         }
     }, {
         key: '_removeAllEventListener',
@@ -242,6 +328,63 @@ var GameMenuController = (function (_Observable) {
             var parent = element.parentNode;
             parent.removeChild(element);
             parent.appendChild(element.cloneNode(true));
+        }
+    }, {
+        key: '_resetPokemonIndexList',
+        value: function _resetPokemonIndexList() {
+            try {
+                return this._selectedPokemonIndexList;
+            } finally {
+                this._selectedPokemonIndexList = [];
+            }
+        }
+    }, {
+        key: '_resetChangeIndex',
+        value: function _resetChangeIndex() {
+            try {
+                return this._selectedChangeIndex;
+            } finally {
+                this._selectedChangeIndex = undefined;
+            }
+        }
+    }, {
+        key: '_resetSkillIndex',
+        value: function _resetSkillIndex() {
+            try {
+                return this._selectedSkillIndex;
+            } finally {
+                this._selectedSkillIndex = undefined;
+            }
+        }
+    }, {
+        key: '_selectChange',
+        value: function _selectChange(index) {
+            this._selectedChangeIndex = index;
+            this._view.getElementById('frame-pokemon-' + index).style.borderColor = '#0000FF';
+        }
+    }, {
+        key: '_selectSkill',
+        value: function _selectSkill(index) {
+            this._selectedSkillIndex = index;
+            this._view.getElementById('frame-skill-' + index).style.borderColor = '#0000FF';
+        }
+    }, {
+        key: '_unselectChange',
+        value: function _unselectChange() {
+            var index = this._resetChangeIndex();
+            if (index !== undefined) {
+                this._view.getElementById('frame-pokemon-' + index).style.borderColor = '#D0D0D0';
+            }
+            return index;
+        }
+    }, {
+        key: '_unselectSkill',
+        value: function _unselectSkill() {
+            var index = this._resetSkillIndex();
+            if (index !== undefined) {
+                this._view.getElementById('frame-skill-' + index).style.borderColor = '#D0D0D0';
+            }
+            return index;
         }
     }, {
         key: 'confirmType',
