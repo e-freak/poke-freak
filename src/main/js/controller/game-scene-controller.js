@@ -1,5 +1,5 @@
 /**
- * game-scene-controller.jsx
+ * game-scene-controller.js
  * 
  * @author yuki
  */

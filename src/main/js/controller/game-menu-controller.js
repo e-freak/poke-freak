@@ -1,5 +1,5 @@
 /**
- * game-menu-controller.jsx
+ * game-menu-controller.js
  * 
  * @author yuki
  */

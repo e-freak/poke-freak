@@ -1,5 +1,5 @@
 /**
- * game-view-controller-loader.jsx
+ * game-view-controller-loader.js
  * 
  * @author yuki
  */

@@ -1,5 +1,5 @@
 /**
- * title-view-controller.jsx
+ * title-view-controller.js
  * 
  * @author yuki
  */

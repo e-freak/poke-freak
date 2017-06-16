@@ -1,5 +1,5 @@
 /**
- * confirm-type.jsx
+ * confirm-type.js
  * 
  * @author yuki
  */

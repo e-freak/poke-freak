@@ -1,5 +1,5 @@
 /**
- * scene-type.jsx
+ * scene-type.js
  * 
  * @author yuki
  */
