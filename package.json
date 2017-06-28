@@ -1,33 +1,67 @@
 {
   "name": "poke-freak",
   "version": "1.0.0",
-  "description": "",
+  "description": "Let's pokemon battle.",
   "main": "poke-freak.js",
+  "babel": {
+    "presets": [
+      "env"
+    ],
+    "env": {
+      "test": {
+        "plugins": [
+          "istanbul"
+        ]
+      }
+    }
+  },
   "scripts": {
-     "compile": "gulp compile",
-     "test": "gulp unit-test"
-   },
+    "compile": "gulp compile",
+    "pretest": "gulp ready-to-test",
+    "test": "mocha cache/test -R dot --compilers js:babel-register --es_staging",
+    "precoverage": "gulp ready-to-coverage",
+    "coverage": "cross-env NODE_ENV=test nyc --all npm run test",
+    "clean": "gulp clean"
+  },
+  "nyc": {
+    "require": [
+      "babel-register"
+    ],
+    "sourceMap": false,
+    "instrument": false,
+    "include": [
+      "cache/test/**/*.js"
+    ],
+    "exclude": [
+      "**/*-test.js",
+      "**/mock-*.js"
+    ],
+    "reporter": [
+      "lcov",
+      "json"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/e-freak/poke-freak.git"
   },
-  "keywords": [],
-  "author": "",
+  "author": "yuki",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/e-freak/poke-freak/issues"
   },
   "homepage": "https://github.com/e-freak/poke-freak#readme",
   "devDependencies": {
-    "asar": "^0.13.0",
-    "browserify": "^14.3.0",
-    "electron-packager": "^8.7.0",
-    "electron-prebuilt": "^1.4.13",
+    "babel-core": "^6.25.0",
+    "babel-plugin-istanbul": "^4.1.4",
+    "babel-preset-env": "^1.5.2",
+    "browserify": "^14.4.0",
+    "cross-env": "^5.0.1",
+    "del": "^3.0.0",
     "gulp": "^3.9.1",
-    "gulp-babel": "^5.3.0",
+    "gulp-babel": "^6.1.2",
     "gulp-mocha": "^4.3.1",
-    "gulp-util": "^3.0.8",
-    "mocha": "^3.3.0",
-    "through2": "^2.0.3"
+    "mocha": "^3.4.2",
+    "nyc": "^11.0.3"
   }
 }

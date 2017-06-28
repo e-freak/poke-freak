@@ -4,7 +4,7 @@
  * @author yuki
  */
 
-const packager = require("electron-packager");
+import packager from 'electron-packager';
 
 
 
@@ -18,8 +18,8 @@ packager({
     overwrite: true,
     prune: true,
     asar: true,
-    ignore: 'bin|cache|src|.+\.bat|.+\.md|\.gitignore|gulpfile\.js|release\.js',
-}, (error = "Done.") => {
-    console.log(error);
+    ignore: 'bin|cache|src|.+\.bat|.+\.md|\.gitignore|gulpfile.*\.js|release\.js',
+}, (message = 'Done.') => {
+    console.log(message);
 });
 
