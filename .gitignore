@@ -1,5 +1,9 @@
+.nyc_output
 node_modules
 cache
+coverage
 bin
+build
 doc
+/lib
 /app/image/pokemon

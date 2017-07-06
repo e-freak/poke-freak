@@ -8,9 +8,10 @@ import GameViewController from '../pokemon/view/controller/game-view-controller'
 
 
 
-const global = (this || 0).self || (typeof self !== 'undefined') ? self : global;
-global.window.addEventListener('DOMContentLoaded', () => {
-    global.controller = new GameViewController(global.document);
-    global.controller.initialize();
-}, false);
-
+const GLOBAL = (this || 0).self || (typeof self !== 'undefined') ? self : global;
+((global) => {
+    global.window.addEventListener('DOMContentLoaded', () => {
+        global.controller = new GameViewController(global.document);
+        global.controller.initialize();
+    }, false);
+})(GLOBAL);

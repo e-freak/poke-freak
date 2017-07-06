@@ -237,9 +237,18 @@ span.skill-pp-value {
     color: #A0C0FF;
 }
 
+span.strong {
+    font-weight: bold;
+}
+
 span.request-to-user {
     font-weight: bold;
     color: #0000FF;
+}
+
+span.weather-report {
+    font-weight: bold;
+    color: #008000;
 }
 
 span.warning-to-user {

@@ -8,8 +8,10 @@ import TitleViewController from '../pokemon/view/controller/title-view-controlle
 
 
 
-const global = (this || 0).self || (typeof self !== 'undefined') ? self : global;
-global.window.addEventListener('DOMContentLoaded', () => {
-    global.controller = new TitleViewController(global.document);
-    global.controller.initialize();
-}, false);
+const GLOBAL = (this || 0).self || (typeof self !== 'undefined') ? self : global;
+((global) => {
+    global.window.addEventListener('DOMContentLoaded', () => {
+        global.controller = new TitleViewController(global.document);
+        global.controller.initialize();
+    }, false);
+})(GLOBAL);

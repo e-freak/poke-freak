@@ -14,7 +14,8 @@ import remove from 'del';
 
 const mainSourceDir  = 'src/main/js';
 const testSourceDir  = 'src/test/js';
-const mainTargetDir  = 'lib';
+const externalDir    = 'lib';
+const mainTargetDir  = 'build';
 const testTargetDir  = 'cache/test';
 const coverageDir    = 'coverage';
 
@@ -45,7 +46,7 @@ gulp.task('compile', [ 'clean-main' ], () => {
 
 gulp.task('ready-to-test', [ 'clean-test' ], () => {
     return gulp.src(
-        [ `${mainSourceDir}/**/*.js`, `${testSourceDir}/**/*.js` ]
+        [ `${mainSourceDir}/**/*.js`, `${testSourceDir}/**/*.js`, `${externalDir}/**/*.js` ]
     ).pipe(
         gulp.dest(testTargetDir)
     );
@@ -64,7 +65,7 @@ gulp.task('unit-test', [ 'ready-to-test' ], () => {
 
 gulp.task('ready-to-coverage', [ 'clean-coverage' ], () => {
     return gulp.src(
-        [ `${mainSourceDir}/**/*.js`, `${testSourceDir}/**/*.js` ]
+        [ `${mainSourceDir}/**/*.js`, `${testSourceDir}/**/*.js`, `${externalDir}/**/*.js` ]
     ).pipe(
         gulp.dest(testTargetDir)
     );

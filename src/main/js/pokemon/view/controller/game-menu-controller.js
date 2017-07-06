@@ -4,11 +4,11 @@
  * @author yuki
  */
 
-import Observable from '../util/observable';
+import Observable from '../../../util/observable';
 
-import ConfirmType from '../event/confirm-type';
+import ConfirmEvent from '../../../event/confirm-event';
 import SceneType from './scene-type';
-import UserEvent from '../event/user-event';
+import UserEvent from '../../../event/user-event';
 
 
 
@@ -17,7 +17,7 @@ export default class GameMenuController extends Observable {
     constructor(view) {
         super();
         this._view = view;
-        this._confirmType = ConfirmType.NONE;
+        this._confirmEvent = ConfirmEvent.NONE;
         this._selectedPokemonIndexList = [];
         this._selectedSkillIndex = undefined;
         this._selectedChangeIndex = undefined;
@@ -63,37 +63,37 @@ export default class GameMenuController extends Observable {
         this._view.getElementById('button-resign').addEventListener('click', this.onClickBattleResignButton.bind(this));
     }
     
-    onConfirmCancel(confirmType) {
-        switch (confirmType) {
-        case ConfirmType.RESIGN:
-            this._confirmType = ConfirmType.NONE;
+    onConfirmCancel(confirmEvent) {
+        switch (confirmEvent) {
+        case ConfirmEvent.RESIGN:
+            this._confirmEvent = ConfirmEvent.NONE;
             this._notifyAllObserver(UserEvent.TO_BATTLE_SCENE);
             break;
-        case ConfirmType.GAME_SET:
+        case ConfirmEvent.GAME_SET:
             // do nothing
             break;
         default:
-            throw new Error(`Unknown confirm type : ${confirmType}`);
+            throw new Error(`Unknown confirm type : ${confirmEvent}`);
         }
     }
     
-    onConfirmOK(confirmType) {
-        switch (confirmType) {
-        case ConfirmType.RESIGN:
-            this._confirmType = ConfirmType.GAME_SET;
+    onConfirmOK(confirmEvent) {
+        switch (confirmEvent) {
+        case ConfirmEvent.RESIGN:
+            this._confirmEvent = ConfirmEvent.GAME_SET;
             this._notifyAllObserver(UserEvent.SELECT_RESIGN_OK);
             this._notifyAllObserver(UserEvent.TO_CONFIRM_SCENE, undefined, false, true);
             break;
-        case ConfirmType.GAME_SET:
+        case ConfirmEvent.GAME_SET:
             this._view.location.href = './title.html';
             break;
         default:
-            throw new Error(`Unknown confirm type : ${confirmType}`);
+            throw new Error(`Unknown confirm type : ${confirmEvent}`);
         }
     }
     
-    get confirmType() {
-        return this._confirmType;
+    get confirmEvent() {
+        return this._confirmEvent;
     }
     
     onClickBattleChangeButton() {
@@ -101,7 +101,7 @@ export default class GameMenuController extends Observable {
     }
     
     onClickBattleResignButton() {
-        this._confirmType = ConfirmType.RESIGN;
+        this._confirmEvent = ConfirmEvent.RESIGN;
         this._notifyAllObserver(UserEvent.SELECT_RESIGN_CHECK);
         this._notifyAllObserver(UserEvent.TO_CONFIRM_SCENE);
     }
@@ -147,8 +147,7 @@ export default class GameMenuController extends Observable {
     
     onClickSelectOKButton() {
         const indexList = this._resetPokemonIndexList();
-        this._notifyAllObserver(UserEvent.TO_BATTLE_SCENE);
-        // this._notifyAllObserver(UserEvent.XXX, indexList);
+        this._notifyAllObserver(UserEvent.START_BATTLE, indexList);
     }
     
     onClickSelectTarget(index) {
@@ -156,7 +155,7 @@ export default class GameMenuController extends Observable {
             if (this._selectedPokemonIndexList.length < 3) {
                 this._selectedPokemonIndexList.push(index);
                 const target = this._view.getElementById(`image-player-pokemon-${index}`);
-                target.className = 'player-pokemon image-pokemon pokemon-selected';
+                target.style.borderColor = '#0000FF';
             }
         }
         else {
@@ -166,7 +165,7 @@ export default class GameMenuController extends Observable {
                 }
             }); 
             const target = this._view.getElementById(`image-player-pokemon-${index}`);
-            target.className = 'player-pokemon image-pokemon';
+            target.style.borderColor = '#FFFFFF';
         }
         if (this._selectedPokemonIndexList.length === 3) {
             this._activateButton('button-ok', this.onClickSelectOKButton.bind(this));
