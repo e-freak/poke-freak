@@ -1,7 +1,5 @@
 /**
  * user-event.js
- * 
- * @author yuki
  */
 
 
@@ -18,6 +16,9 @@ export default {
     
     CONFIRM_OK         : 'USER_CONFIRM_OK',
     CONFIRM_CANCEL     : 'USER_CONFIRM_CANCEL',
+    
+    SELECT_POKEMON     : 'USER_SELECT_POKEMON',
+    UNSELECT_POKEMON   : 'USER_UNSELECT_POKEMON',
     
     START_BATTLE       : 'USER_START_BATTLE',
     

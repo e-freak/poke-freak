@@ -23,7 +23,7 @@ export default class GameMenuController extends Observable {
         this._selectedChangeIndex = undefined;
     }
     
-    changeScene(scene, disableOKButton = undefined, disableCancelButton = undefined) {
+    changeScene(scene, disableOKButton = false, disableCancelButton = false) {
         switch (scene) {
         case SceneType.SELECT:
             this._changeToSelectScene();
@@ -96,6 +96,10 @@ export default class GameMenuController extends Observable {
         return this._confirmEvent;
     }
     
+    set confirmEvent(value) {
+        this._confirmEvent = value;
+    }
+    
     onClickBattleChangeButton() {
         this._notifyAllObserver(UserEvent.TO_CHANGE_SCENE);
     }
@@ -151,26 +155,30 @@ export default class GameMenuController extends Observable {
     }
     
     onClickSelectTarget(index) {
+        const isLimit = (list) => {
+            return list.length >= 3;
+        };
+        const element = this._view.getElementById(`image-player-pokemon-${index}`);
         if (!this._selectedPokemonIndexList.includes(index)) {
-            if (this._selectedPokemonIndexList.length < 3) {
+            if (!isLimit(this._selectedPokemonIndexList)) {
                 this._selectedPokemonIndexList.push(index);
-                const target = this._view.getElementById(`image-player-pokemon-${index}`);
-                target.style.borderColor = '#0000FF';
+                this._notifyAllObserver(UserEvent.SELECT_POKEMON, this._selectedPokemonIndexList);
+                this._view.getElementById(`image-player-pokemon-${index}`).style.borderColor = '#0000FF';
+                if (isLimit(this._selectedPokemonIndexList)) {
+                    this._activateButton('button-ok', this.onClickSelectOKButton.bind(this));
+                }
             }
         }
         else {
             this._selectedPokemonIndexList.some((value, i) => {
                 if (value === index) {
                     this._selectedPokemonIndexList.splice(i, 1);
+                    return true;
                 }
+                return false;
             }); 
-            const target = this._view.getElementById(`image-player-pokemon-${index}`);
-            target.style.borderColor = '#FFFFFF';
-        }
-        if (this._selectedPokemonIndexList.length === 3) {
-            this._activateButton('button-ok', this.onClickSelectOKButton.bind(this));
-        }
-        else {
+            this._notifyAllObserver(UserEvent.UNSELECT_POKEMON, this._selectedPokemonIndexList);
+            this._view.getElementById(`image-player-pokemon-${index}`).style.borderColor = '#FFFFFF';
             this._deactivateButton('button-ok');
         }
     }
@@ -199,13 +207,16 @@ export default class GameMenuController extends Observable {
     }
     
     _activateButton(buttonID, listener) {
-        this._view.getElementById(buttonID).className = 'button';
-        this._view.getElementById(buttonID).addEventListener('click', listener);
+        const button = this._view.getElementById(buttonID);
+//        this._removeAllEventListener(button);
+        button.className = 'button';
+        button.addEventListener('click', listener);
     }
     
     _deactivateButton(buttonID) {
-        this._view.getElementById(buttonID).className = 'button button-disable';
-        this._removeAllEventListener(this._view.getElementById(buttonID));
+        const button = this._view.getElementById(buttonID);
+        button.className = 'button button-disable';
+        this._removeAllEventListener(button);
     }
     
     _changeToBattleScene() {
@@ -213,7 +224,7 @@ export default class GameMenuController extends Observable {
         this._view.getElementById('battle-menu').style.display = 'inline';
     }
     
-    _changeToChangeScene(disableCancelButton = false) {
+    _changeToChangeScene(disableCancelButton) {
         this._view.getElementById('default-menu').style.display = 'inline';
         this._view.getElementById('battle-menu').style.display = 'none';
         this._deactivateButton('button-ok');
@@ -225,7 +236,7 @@ export default class GameMenuController extends Observable {
         }
     }
     
-    _changeToConfirmScene(disableOKButton = false, disableCancelButton = false) {
+    _changeToConfirmScene(disableOKButton, disableCancelButton) {
         this._view.getElementById('default-menu').style.display = 'inline';
         this._view.getElementById('battle-menu').style.display = 'none';
         if (disableOKButton) {
@@ -247,9 +258,6 @@ export default class GameMenuController extends Observable {
         this._view.getElementById('battle-menu').style.display = 'none';
         this._deactivateButton('button-ok');
         this._activateButton('button-back', this.onClickSelectBackButton.bind(this));
-        
-        // デバッグ用に暫定でボタンを有効化
-        this._view.getElementById('button-ok').addEventListener('click', this.onClickSelectOKButton.bind(this));
     }
     
     _changeToSkillScene() {

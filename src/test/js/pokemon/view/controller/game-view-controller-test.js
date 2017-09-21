@@ -480,6 +480,27 @@ describe('GameViewControllerTest', () => {
             assert.strictEqual(controller._master.nextList[0].targetPokemonIndex, controller._opponentPokemonIndex);
         });
         
+        it('GAME_SET.', () => {
+            const event = GameEvent.GAME_SET;
+            const view = createMockView();
+            const controller = createGameViewController(view);
+            controller._scene = createMockGameSceneController();
+            controller._menu = createMockGameMenuController();
+            controller._announcer = createMockObserver();
+            controller._master = createMockGameMaster();
+            const param = { event: event, playerID: controller._master.OPPONENT_ID };
+            
+            controller.update(controller._menu, param);
+            
+            assert.strictEqual(controller._menu.confirmEvent, ConfirmEvent.GAME_SET);
+            assert.strictEqual(controller._menu.changeSceneList.length, 1);
+            assert.strictEqual(controller._menu.changeSceneList[0].scene, SceneType.CONFIRM);
+            assert.ok(!controller._menu.changeSceneList[0].disableOKButton);
+            assert.ok(controller._menu.changeSceneList[0].disableCancelButton);
+            assert.strictEqual(controller._scene.changeSceneList.length, 1);
+            assert.strictEqual(controller._scene.changeSceneList[0].scene, SceneType.CONFIRM);
+        });
+        
     });
     
     

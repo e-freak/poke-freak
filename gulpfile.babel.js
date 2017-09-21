@@ -7,23 +7,28 @@
 import gulp from 'gulp';
 import babel from 'gulp-babel';
 import mocha from 'gulp-mocha';
+import rename from 'gulp-rename';
 
 import remove from 'del';
 
+import browserify from './browserify';
 
 
-const mainSourceDir  = 'src/main/js';
-const testSourceDir  = 'src/test/js';
-const externalDir    = 'lib';
-const mainTargetDir  = 'build';
-const testTargetDir  = 'cache/test';
-const coverageDir    = 'coverage';
+
+const mainSourceDir   = 'src/main/js';
+const testSourceDir   = 'src/test/js';
+const externalDir     = 'lib';
+const mainTargetDir   = 'build';
+const testTargetDir   = 'cache/test';
+const loaderSourceDir = `${mainTargetDir}/loader`;
+const loaderTargetDir = 'app/script';
+const coverageDir     = 'coverage';
 
 gulp.task('clean', [ 'clean-main', 'clean-test', 'clean-coverage' ], () => {
 });
 
 gulp.task('clean-main', remove.bind(null,
-    [ `${mainTargetDir}/**/*.js` ]
+    [ mainTargetDir, loaderTargetDir ]
 ));
 
 gulp.task('clean-test', remove.bind(null,
@@ -41,6 +46,28 @@ gulp.task('compile', [ 'clean-main' ], () => {
         babel()
     ).pipe(
         gulp.dest(mainTargetDir)
+    );
+});
+
+gulp.task('ready-to-browserify', () => {
+    return gulp.src(
+        `${externalDir}/**/*.js`
+    ).pipe(
+        gulp.dest(mainTargetDir)
+    );
+});
+
+gulp.task('browserify', [ 'ready-to-browserify' ], () => {
+    return gulp.src(
+        `${loaderSourceDir}/**/*.js`
+    ).pipe(
+        browserify()
+    ).pipe(
+        rename({
+            extname: '.mix.js',
+        })
+    ).pipe(
+        gulp.dest(loaderTargetDir)
     );
 });
 

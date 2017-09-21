@@ -22,14 +22,10 @@ export default class MockGameMaster extends Observable {
         this.changeByBatonList = [];
         this.changeBySkillList = [];
         this.closeCount = 0;
-        this.confirmResignList = [];
         this.endList = [];
-        this.helpList = [];
         this.initializeList = [];
         this.nextList = [];
         this.readyList = [];
-        this.requestChangeMenuList = [];
-        this.requestSkillMenuList = [];
         this.resignList = [];
         this.selectList = [];
         this.skillList = [];
@@ -55,16 +51,8 @@ export default class MockGameMaster extends Observable {
         this.closeCount++;
     }
     
-    confirmResign(playerID) {
-        this.confirmResignList.push({ playerID: playerID });
-    }
-    
     end(force) {
         this.endList.push({ force: force });
-    }
-    
-    help(playerID) {
-        this.helpList.push({ playerID: playerID });
     }
     
     initialize(playerName, opponentName) {
@@ -77,14 +65,6 @@ export default class MockGameMaster extends Observable {
     
     ready(playerResource, opponentResource) {
         this.readyList.push({ playerResource: playerResource, opponentResource: opponentResource });
-    }
-    
-    requestChangeMenu(playerID, cancelable = true) {
-        this.requestChangeMenuList.push({ playerID: playerID, cancelable: cancelable });
-    }
-    
-    requestSkillMenu(playerID, cancelable = true) {
-        this.requestSkillMenuList.push({ playerID: playerID, cancelable: cancelable });
     }
     
     resign(playerID) {
