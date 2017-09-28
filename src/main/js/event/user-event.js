@@ -1,5 +1,7 @@
 /**
  * user-event.js
+ * 
+ * @author yuki
  */
 
 

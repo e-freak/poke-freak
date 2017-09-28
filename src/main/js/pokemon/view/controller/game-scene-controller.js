@@ -6,6 +6,7 @@
 
 import Observer from '../../../util/observer';
 
+import ImageResource from '../../../resource/image-resource';
 import SceneType from './scene-type';
 import ViewWrapper from '../view-wrapper';
 
@@ -42,6 +43,9 @@ export default class GameSceneController extends Observer {
         }
     }
     
+    initialize() {
+    }
+    
     update(target, param) {
         switch (param.event) {
         case UpdateEvent.POKEMON_STATUS:
@@ -55,7 +59,7 @@ export default class GameSceneController extends Observer {
         }
     }
     
-    requestSelectedPokemonInfo(sourcePokemonList, selectedPokemonIndex) {
+    requestSelectedPokemonInfo(sourcePokemonList, selectedPokemonIndex = []) {
         const buffer = [];
         buffer.push('使用するポケモンを選んでください');
         selectedPokemonIndex.forEach((index, count) => {
@@ -81,10 +85,8 @@ export default class GameSceneController extends Observer {
             const elementFieldID = `party-player-pokemon-element-${index}`;
             const skillNameFieldID = `party-player-pokemon-skill-name-${index}`;
             const skillPPFieldID = `party-player-pokemon-skill-pp-${index}`;
-            // TODO 画像リソース
-            this._view.getElementById(imageID).src = `../image/pokemon/${('0000' + pokemon.pokemonID).slice(-4)}.png`;
-            // TODO アイテム画像
-            this._view.getElementById(itemID).src = '../image/item/item-blank.png';
+            this._view.getElementById(imageID).src = ImageResource.getPokemonImage(pokemon.pokemonID);
+            this._view.getElementById(itemID).src = ImageResource.getItemImage(pokemon.item);
             this._view.getElementById(statusAilmentID).textContent = pokemon.statusAilment.label;
             this._setPokemonElement(elementFieldID, pokemon);
             setPokemonSkill(skillNameFieldID, skillPPFieldID, pokemon);
@@ -117,15 +119,15 @@ export default class GameSceneController extends Observer {
                 this._view.getElementById(hpCountID).textContent = activePokemon.activeH;
             }
             this._view.getElementById(nameID).textContent = activePokemon.name;
-            this._view.getElementById(itemID).src = '../image/item/item-blank.png';
+            this._view.getElementById(itemID).src = ImageResource.getItemImage(activePokemon.item);
             this._view.getElementById(statusAilmentID).textContent = activePokemon.statusAilment.label;
             this._setPokemonElement(elementFieldID, activePokemon);
             const partyField = this._view.getAppendableField(partyFieldID);
             const className = leftSide ? 'player-pokemon icon-pokemon' : 'icon-pokemon';
             info.getParty(targetID).forEachSelected((pokemon) => {
-                partyField.appendChild(this._view.createImageTag(`../image/pokemon/${('0000' + pokemon.pokemonID).slice(-4)}.png`, className));
+                partyField.appendChild(this._view.createImageTag(ImageResource.getPokemonImage(pokemon.pokemonID), className));
             });
-            this._view.getElementById(activePokemonIconID).src = `../image/pokemon/${('0000' + activePokemon.pokemonID).slice(-4)}.png`;
+            this._view.getElementById(activePokemonIconID).src = ImageResource.getPokemonImage(activePokemon.pokemonID);
         });
     }
     
@@ -137,7 +139,7 @@ export default class GameSceneController extends Observer {
             this._view.getElementById(playerNameID).textContent = player.name;
             info.getParty(targetID).forEach((pokemon, index) => {
                 const imageID = `image-${playerLabel}-pokemon-${index}`;
-                this._view.getElementById(imageID).src = `../image/pokemon/${('0000' + pokemon.pokemonID).slice(-4)}.png`;
+                this._view.getElementById(imageID).src = ImageResource.getPokemonImage(pokemon.pokemonID);
             });
         });
     }
@@ -221,10 +223,10 @@ export default class GameSceneController extends Observer {
         const statusAilmentID = `${playerLabel}-active-pokemon-status-ailment`;
         const elementFieldID = `${playerLabel}-active-pokemon-element`;
         this._view.getElementById(nameID).textContent = activePokemon.name;
-        this._view.getElementById(itemID).src = '../image/item/item-blank.png';
+        this._view.getElementById(itemID).src = ImageResource.getItemImage(activePokemon.item);
         this._view.getElementById(statusAilmentID).textContent = activePokemon.statusAilment.label;
         this._setPokemonElement(elementFieldID, activePokemon);
-        this._view.getElementById(activePokemonIconID).src = `../image/pokemon/${('0000' + activePokemon.pokemonID).slice(-4)}.png`;
+        this._view.getElementById(activePokemonIconID).src = ImageResource.getPokemonImage(activePokemon.pokemonID);
         
         const percentage = Math.ceil(activePokemon.activeH / activePokemon.maxH * 100);
         this._view.getElementById(`${playerLabel}-active-pokemon-hp`).style.width = `${percentage}%`;

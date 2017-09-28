@@ -1,5 +1,7 @@
 /**
  * view-wrapper.js
+ * 
+ * @author yuki
  */
 
 export default class ViewWrapper {

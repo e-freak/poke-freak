@@ -167,6 +167,7 @@ export default class GameMenuController extends Observable {
                 if (isLimit(this._selectedPokemonIndexList)) {
                     this._activateButton('button-ok', this.onClickSelectOKButton.bind(this));
                 }
+                this._activateButton('button-back', this.onClickSelectBackButton.bind(this));
             }
         }
         else {
@@ -180,6 +181,7 @@ export default class GameMenuController extends Observable {
             this._notifyAllObserver(UserEvent.UNSELECT_POKEMON, this._selectedPokemonIndexList);
             this._view.getElementById(`image-player-pokemon-${index}`).style.borderColor = '#FFFFFF';
             this._deactivateButton('button-ok');
+            this._activateButton('button-back', this.onClickSelectBackButton.bind(this));
         }
     }
     
@@ -208,7 +210,6 @@ export default class GameMenuController extends Observable {
     
     _activateButton(buttonID, listener) {
         const button = this._view.getElementById(buttonID);
-//        this._removeAllEventListener(button);
         button.className = 'button';
         button.addEventListener('click', listener);
     }

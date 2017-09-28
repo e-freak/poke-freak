@@ -37,16 +37,19 @@ export default class GameViewController extends Observer {
     }
     
     initialize() {
+        this._scene.initialize();
         this._menu.initialize();
         this._master.initialize('プレイヤー', '対戦相手');
         this._master.ready(SamplePartyList[0], SamplePartyList[1]);
         this._changeScene(SceneType.SELECT, true);
+        this._scene.requestSelectedPokemonInfo(this._master.info.getParty(this._master.PLAYER_ID).sourcePokemonList);
     }
     
     update(target, param) {
         switch (param.event) {
         case UserEvent.TO_SELECT_SCENE:
             this._changeScene(SceneType.SELECT, true);
+            this._scene.requestSelectedPokemonInfo(this._master.info.getParty(this._master.PLAYER_ID).sourcePokemonList);
             break;
         case UserEvent.TO_BATTLE_SCENE:
             this._changeScene(SceneType.BATTLE);

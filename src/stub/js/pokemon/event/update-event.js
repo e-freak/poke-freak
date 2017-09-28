@@ -1,0 +1,23 @@
+/**
+ * update-event.js
+ * 
+ * @author yuki
+ */
+
+
+
+export default {
+    
+    // 必ず UPDATE_XXX の値を取ること
+    
+    POKEMON_STATUS            : 'UPDATE_POKEMON_STATUS',
+    POKEMON_DEAD              : 'UPDATE_POKEMON_DEAD',
+    POKEMON_CHANGE            : 'UPDATE_POKEMON_CHANGE',
+    
+    STATUS_AILMENT_RESET      : 'UPDATE_STATUS_AILMENT_RESET',
+    STATUS_AILMENT_COUNT_RESET: 'UPDATE_STATUS_AILMENT_COUNT_RESET',
+    STATUS_CHANGE_RESET       : 'UPDATE_STATUS_CHANGE_RESET',
+    STATUS_CHANGE_COUNT_DOWN  : 'UPDATE_STATUS_CHANGE_COUNT_DOWN',
+    STATUS_RANK_RESET         : 'UPDATE_STATUS_RANK_RESET',
+    
+};

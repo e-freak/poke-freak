@@ -1,5 +1,7 @@
 /**
  * browser-announcer.js
+ * 
+ * @author yuki
  */
 
 import ConsoleAnnouncer from './console-announcer';

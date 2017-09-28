@@ -24,6 +24,6 @@ electron.app.on('ready', () => {
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
-//    mainWindow.openDevTools();
+    mainWindow.openDevTools();
 });
 
