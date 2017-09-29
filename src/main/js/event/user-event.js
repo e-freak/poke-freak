@@ -29,4 +29,6 @@ export default {
     SELECT_RESIGN_CHECK: 'USER_SELECT_RESIGN_CHECK',
     SELECT_RESIGN_OK   : 'USER_SELECT_RESIGN_OK',
     
+    GAME_PAUSE         : 'USER_GAME_PAUSE',
+    
 };

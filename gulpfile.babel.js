@@ -16,6 +16,7 @@ import browserify from './browserify';
 
 
 const mainSourceDir   = 'src/main/js';
+const stubSourceDir   = 'src/stub/js';
 const testSourceDir   = 'src/test/js';
 const externalDir     = 'lib';
 const mainTargetDir   = 'build';
@@ -42,6 +43,16 @@ gulp.task('clean-coverage', remove.bind(null,
 gulp.task('compile', [ 'clean-main' ], () => {
     return gulp.src(
         `${mainSourceDir}/**/*.js`
+    ).pipe(
+        babel()
+    ).pipe(
+        gulp.dest(mainTargetDir)
+    );
+});
+
+gulp.task('compile-stub', [ 'compile' ], () => {
+    return gulp.src(
+        `${stubSourceDir}/**/*.js`
     ).pipe(
         babel()
     ).pipe(

@@ -17,7 +17,9 @@
   },
   "scripts": {
     "compile": "gulp compile",
+    "compile-stub": "gulp compile-stub",
     "postcompile": "gulp browserify",
+    "postcompile-stub": "gulp browserify",
     "pretest": "gulp ready-to-test",
     "test": "mocha cache/test -R dot --compilers js:babel-register --es_staging",
     "precoverage": "gulp ready-to-coverage",

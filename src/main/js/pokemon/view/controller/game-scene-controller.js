@@ -43,6 +43,10 @@ export default class GameSceneController extends Observer {
         }
     }
     
+    clearMessage() {
+        this._view.getElementById('text-message').innerHTML = '';
+    }
+    
     initialize() {
     }
     

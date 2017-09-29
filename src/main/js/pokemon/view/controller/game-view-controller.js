@@ -130,6 +130,8 @@ export default class GameViewController extends Observer {
             this._menu.confirmEvent = ConfirmEvent.GAME_SET;
             this._changeScene(SceneType.CONFIRM, false, true);
             break;
+        case UserEvent.GAME_PAUSE:
+            this._scene.clearMessage();
         default:
             break;
         }

@@ -21,6 +21,7 @@ export default class GameMenuController extends Observable {
         this._selectedPokemonIndexList = [];
         this._selectedSkillIndex = undefined;
         this._selectedChangeIndex = undefined;
+        this._messageBackup = '';
     }
     
     changeScene(scene, disableOKButton = false, disableCancelButton = false) {
@@ -66,6 +67,8 @@ export default class GameMenuController extends Observable {
     onConfirmCancel(confirmEvent) {
         switch (confirmEvent) {
         case ConfirmEvent.RESIGN:
+            this._view.getElementById('text-message').innerHTML = this._messageBackup;
+            this._messageBackup = '';
             this._confirmEvent = ConfirmEvent.NONE;
             this._notifyAllObserver(UserEvent.TO_BATTLE_SCENE);
             break;
@@ -105,6 +108,7 @@ export default class GameMenuController extends Observable {
     }
     
     onClickBattleResignButton() {
+        this._messageBackup = this._view.getElementById('text-message').innerHTML;
         this._confirmEvent = ConfirmEvent.RESIGN;
         this._notifyAllObserver(UserEvent.SELECT_RESIGN_CHECK);
         this._notifyAllObserver(UserEvent.TO_CONFIRM_SCENE);

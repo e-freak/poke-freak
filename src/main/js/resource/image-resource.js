@@ -4,8 +4,6 @@
  * @author yuki
  */
 
-import system from 'fs';
-
 
 
 class ImageResource {
