@@ -8,6 +8,7 @@ import GameSceneController from './game-scene-controller';
 
 import SceneType from './scene-type';
 
+import MockImage from '../../../mock-image';
 import MockView from '../mock-view';
 
 

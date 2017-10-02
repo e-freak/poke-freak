@@ -46,7 +46,7 @@ class ImageResource {
     }
     
     _createImageObject(sourceImagePath) {
-        const image = new Image();
+        const image = new window.Image();
         image.src = sourceImagePath;
         return image;
     }

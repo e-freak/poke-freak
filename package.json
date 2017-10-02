@@ -21,7 +21,7 @@
     "postcompile": "gulp browserify",
     "postcompile-stub": "gulp browserify",
     "pretest": "gulp ready-to-test",
-    "test": "mocha cache/test -R dot --compilers js:babel-register --es_staging",
+    "test": "mocha cache/test -r setup-unit-test.js -R dot --compilers js:babel-register --es_staging",
     "precoverage": "gulp ready-to-coverage",
     "coverage": "cross-env NODE_ENV=test nyc --all npm run test",
     "clean": "gulp clean"
@@ -65,6 +65,7 @@
     "gulp-babel": "^6.1.2",
     "gulp-mocha": "^4.3.1",
     "gulp-rename": "^1.2.2",
+    "jsdom": "^11.3.0",
     "mocha": "^3.4.2",
     "nyc": "^11.0.3"
   }
