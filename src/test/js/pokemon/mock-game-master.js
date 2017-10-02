@@ -5,7 +5,6 @@
 import Observable from '../util/observable';
 
 import GameStatus from './game-status';
-import PlayerID from './rule/playerID';
 import PokemonInfo from './rule/pokemon-info';
 
 
@@ -14,8 +13,8 @@ export default class MockGameMaster extends Observable {
     
     constructor() {
         super();
-        this.PLAYER_ID = new PlayerID(1);
-        this.OPPONENT_ID = new PlayerID(2);
+        this.PLAYER_ID = { value: 1 };
+        this.OPPONENT_ID = { value: 2 };
         this._info = new PokemonInfo();
         this.addObserverList = [];
         this.changeList = [];
