@@ -63,14 +63,33 @@ export default class GameSceneController extends Observer {
         }
     }
     
-    requestSelectedPokemonInfo(sourcePokemonList, selectedPokemonIndex = []) {
-        const buffer = [];
-        buffer.push('使用するポケモンを選んでください');
-        selectedPokemonIndex.forEach((index, count) => {
-            buffer.push(`${count + 1}： ${sourcePokemonList[index].label}`);
+    requestBattleInfo(info, playerID) {
+        info.forEachPlayer((player) => {
+            const targetID = player.playerID;
+            const leftSide = targetID.value === playerID.value;
+            const playerLabel = leftSide ? 'player' : 'opponent';
+            const activePokemon = info.getActivePokemon(targetID);
+            const activePokemonIconID = `icon-${playerLabel}-active-pokemon`;
+            const nameID = `${playerLabel}-active-pokemon-name`;
+            const itemID = `${playerLabel}-active-pokemon-item`;
+            const statusAilmentID = `${playerLabel}-active-pokemon-status-ailment`;
+            const elementFieldID = `${playerLabel}-active-pokemon-element`;
+            const partyFieldID = `icon-${playerLabel}-pokemon`;
+            if (leftSide) {
+                const hpCountID = `player-active-pokemon-hp-count`;
+                this._view.getElementById(hpCountID).textContent = activePokemon.activeH;
+            }
+            this._view.getElementById(nameID).textContent = activePokemon.name;
+            this._view.getElementById(itemID).src = ImageResource.getItemImage(activePokemon.item);
+            this._view.getElementById(statusAilmentID).textContent = activePokemon.statusAilment.label;
+            this._setPokemonElement(elementFieldID, activePokemon);
+            const partyField = this._view.getAppendableField(partyFieldID);
+            const className = leftSide ? 'player-pokemon icon-pokemon' : 'icon-pokemon';
+            info.getParty(targetID).forEachSelected((pokemon) => {
+                partyField.appendChild(this._view.createImageTag(ImageResource.getPokemonImage(pokemon.pokemonID), className));
+            });
+            this._view.getElementById(activePokemonIconID).src = ImageResource.getPokemonImage(activePokemon.pokemonID);
         });
-        const textarea = this._view.getElementById('text-message');
-        textarea.innerHTML = buffer.join('<br />');
     }
     
     requestChangeMenu(info, playerID) {
@@ -106,33 +125,14 @@ export default class GameSceneController extends Observer {
         textarea.innerHTML = message;
     }
     
-    requestBattleInfo(info, playerID) {
-        info.forEachPlayer((player) => {
-            const targetID = player.playerID;
-            const leftSide = targetID.value === playerID.value;
-            const playerLabel = leftSide ? 'player' : 'opponent';
-            const activePokemon = info.getActivePokemon(targetID);
-            const activePokemonIconID = `icon-${playerLabel}-active-pokemon`;
-            const nameID = `${playerLabel}-active-pokemon-name`;
-            const itemID = `${playerLabel}-active-pokemon-item`;
-            const statusAilmentID = `${playerLabel}-active-pokemon-status-ailment`;
-            const elementFieldID = `${playerLabel}-active-pokemon-element`;
-            const partyFieldID = `icon-${playerLabel}-pokemon`;
-            if (leftSide) {
-                const hpCountID = `player-active-pokemon-hp-count`;
-                this._view.getElementById(hpCountID).textContent = activePokemon.activeH;
-            }
-            this._view.getElementById(nameID).textContent = activePokemon.name;
-            this._view.getElementById(itemID).src = ImageResource.getItemImage(activePokemon.item);
-            this._view.getElementById(statusAilmentID).textContent = activePokemon.statusAilment.label;
-            this._setPokemonElement(elementFieldID, activePokemon);
-            const partyField = this._view.getAppendableField(partyFieldID);
-            const className = leftSide ? 'player-pokemon icon-pokemon' : 'icon-pokemon';
-            info.getParty(targetID).forEachSelected((pokemon) => {
-                partyField.appendChild(this._view.createImageTag(ImageResource.getPokemonImage(pokemon.pokemonID), className));
-            });
-            this._view.getElementById(activePokemonIconID).src = ImageResource.getPokemonImage(activePokemon.pokemonID);
+    requestSelectedPokemonInfo(sourcePokemonList, selectedPokemonIndex = []) {
+        const buffer = [];
+        buffer.push('使用するポケモンを選んでください');
+        selectedPokemonIndex.forEach((index, count) => {
+            buffer.push(`${count + 1}： ${sourcePokemonList[index].label}`);
         });
+        const textarea = this._view.getElementById('text-message');
+        textarea.innerHTML = buffer.join('<br />');
     }
     
     requestSelectMenu(info, playerID) {

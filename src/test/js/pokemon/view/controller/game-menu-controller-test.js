@@ -14,7 +14,7 @@ import MockView from '../mock-view';
 
 
 
-describe('GameViewControllerTest', () => {
+describe('GameMenuControllerTest', () => {
     
     describe('changeScene()', () => {
         
@@ -224,20 +224,13 @@ describe('GameViewControllerTest', () => {
     
     function checkActivetedButton(element, listenerName) {
         assert.strictEqual(element.className, 'button');
-        assert.strictEqual(element.parentNode.removeChildList.length, 1);
-        assert.strictEqual(element.parentNode.removeChildList[0].element, element);
-        assert.strictEqual(element.parentNode.appendChildList.length, 1);
-        assert.strictEqual(element.parentNode.appendChildList[0].element, element);
         assert.strictEqual(element.addEventListenerList.length, 1);
         assert.strictEqual(element.addEventListenerList[0].listener.name, listenerName);
     }
     
     function checkDeactivetedButton(element) {
         assert.strictEqual(element.className, 'button button-disable');
-        assert.strictEqual(element.parentNode.removeChildList.length, 1);
-        assert.strictEqual(element.parentNode.removeChildList[0].element, element);
-        assert.strictEqual(element.parentNode.appendChildList.length, 1);
-        assert.strictEqual(element.parentNode.appendChildList[0].element, element);
+        assert.strictEqual(element.addEventListenerList.length, 0);
     }
     
     function createGameMenuController(view) {

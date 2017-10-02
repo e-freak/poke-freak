@@ -84,7 +84,7 @@ gulp.task('browserify', [ 'ready-to-browserify' ], () => {
 
 gulp.task('ready-to-test', [ 'clean-test' ], () => {
     return gulp.src(
-        [ `${mainSourceDir}/**/*.js`, `${testSourceDir}/**/*.js`, `${externalDir}/**/*.js` ]
+        [ `${mainSourceDir}/**/*.js`, `${testSourceDir}/**/*.js`, `${stubSourceDir}/**/*.js` ]
     ).pipe(
         gulp.dest(testTargetDir)
     );
@@ -103,7 +103,7 @@ gulp.task('unit-test', [ 'ready-to-test' ], () => {
 
 gulp.task('ready-to-coverage', [ 'clean-coverage' ], () => {
     return gulp.src(
-        [ `${mainSourceDir}/**/*.js`, `${testSourceDir}/**/*.js`, `${externalDir}/**/*.js` ]
+        [ `${mainSourceDir}/**/*.js`, `${testSourceDir}/**/*.js`, `${stubSourceDir}/**/*.js` ]
     ).pipe(
         gulp.dest(testTargetDir)
     );

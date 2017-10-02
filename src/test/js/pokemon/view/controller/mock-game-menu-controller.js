@@ -39,4 +39,8 @@ export default class MockGameMenuController extends Observable {
         return this._confirmEvent;
     }
     
+    set confirmEvent(value) {
+        this._confirmEvent = value;
+    }
+    
 }

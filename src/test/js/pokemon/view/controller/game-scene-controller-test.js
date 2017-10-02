@@ -8,6 +8,7 @@ import GameSceneController from './game-scene-controller';
 
 import SceneType from './scene-type';
 
+import MockPokemonInfo from '../../rule/mock-pokemon-info';
 import MockView from '../mock-view';
 
 
@@ -18,10 +19,11 @@ describe('GameSceneControllerTest', () => {
         
         it('Change to select scene.', () => {
             const scene = SceneType.SELECT;
+            const info = new MockPokemonInfo();
             const view = createMockView();
-            const controller = createGameMenuController(view);
+            const controller = createGameSceneController(view);
             
-            controller.changeScene(scene);
+            controller.changeScene(scene, info);
             
             assert.strictEqual(view.getElementByIdList.length, 6);
             assert.strictEqual(view.getElementByIdList[0].fieldID, 'select-info');
@@ -30,7 +32,7 @@ describe('GameSceneControllerTest', () => {
             assert.strictEqual(view.getElementByIdList[1].element.style.display, 'none');
             assert.strictEqual(view.getElementByIdList[2].fieldID, 'skill-info');
             assert.strictEqual(view.getElementByIdList[2].element.style.display, 'none');
-            assert.strictEqual(view.getElementByIdList[3].fieldID, 'change-menu');
+            assert.strictEqual(view.getElementByIdList[3].fieldID, 'change-info');
             assert.strictEqual(view.getElementByIdList[3].element.style.display, 'none');
             assert.strictEqual(view.getElementByIdList[4].fieldID, 'info-field');
             assert.strictEqual(view.getElementByIdList[4].element.style.height, '380px');
@@ -44,10 +46,11 @@ describe('GameSceneControllerTest', () => {
         
         it('Change to battle scene.', () => {
             const scene = SceneType.BATTLE;
+            const info = new MockPokemonInfo();
             const view = createMockView();
-            const controller = createGameMenuController(view);
+            const controller = createGameSceneController(view);
             
-            controller.changeScene(scene);
+            controller.changeScene(scene, info);
             
             assert.strictEqual(view.getElementByIdList.length, 6);
             assert.strictEqual(view.getElementByIdList[0].fieldID, 'select-info');
@@ -56,7 +59,7 @@ describe('GameSceneControllerTest', () => {
             assert.strictEqual(view.getElementByIdList[1].element.style.display, 'inline');
             assert.strictEqual(view.getElementByIdList[2].fieldID, 'skill-info');
             assert.strictEqual(view.getElementByIdList[2].element.style.display, 'none');
-            assert.strictEqual(view.getElementByIdList[3].fieldID, 'change-menu');
+            assert.strictEqual(view.getElementByIdList[3].fieldID, 'change-info');
             assert.strictEqual(view.getElementByIdList[3].element.style.display, 'none');
             assert.strictEqual(view.getElementByIdList[4].fieldID, 'info-field');
             assert.strictEqual(view.getElementByIdList[4].element.style.height, '200px');
@@ -70,10 +73,11 @@ describe('GameSceneControllerTest', () => {
         
         it('Change to skill scene.', () => {
             const scene = SceneType.SKILL;
+            const info = new MockPokemonInfo();
             const view = createMockView();
-            const controller = createGameMenuController(view);
+            const controller = createGameSceneController(view);
             
-            controller.changeScene(scene);
+            controller.changeScene(scene, info);
             
             assert.strictEqual(view.getElementByIdList.length, 6);
             assert.strictEqual(view.getElementByIdList[0].fieldID, 'select-info');
@@ -82,7 +86,7 @@ describe('GameSceneControllerTest', () => {
             assert.strictEqual(view.getElementByIdList[1].element.style.display, 'inline');
             assert.strictEqual(view.getElementByIdList[2].fieldID, 'skill-info');
             assert.strictEqual(view.getElementByIdList[2].element.style.display, 'inline');
-            assert.strictEqual(view.getElementByIdList[3].fieldID, 'change-menu');
+            assert.strictEqual(view.getElementByIdList[3].fieldID, 'change-info');
             assert.strictEqual(view.getElementByIdList[3].element.style.display, 'none');
             assert.strictEqual(view.getElementByIdList[4].fieldID, 'info-field');
             assert.strictEqual(view.getElementByIdList[4].element.style.height, '460px');
@@ -96,10 +100,11 @@ describe('GameSceneControllerTest', () => {
         
         it('Change to change scene.', () => {
             const scene = SceneType.CHANGE;
+            const info = new MockPokemonInfo();
             const view = createMockView();
-            const controller = createGameMenuController(view);
+            const controller = createGameSceneController(view);
             
-            controller.changeScene(scene);
+            controller.changeScene(scene, info);
             
             assert.strictEqual(view.getElementByIdList.length, 6);
             assert.strictEqual(view.getElementByIdList[0].fieldID, 'select-info');
@@ -108,7 +113,7 @@ describe('GameSceneControllerTest', () => {
             assert.strictEqual(view.getElementByIdList[1].element.style.display, 'inline');
             assert.strictEqual(view.getElementByIdList[2].fieldID, 'skill-info');
             assert.strictEqual(view.getElementByIdList[2].element.style.display, 'none');
-            assert.strictEqual(view.getElementByIdList[3].fieldID, 'change-menu');
+            assert.strictEqual(view.getElementByIdList[3].fieldID, 'change-info');
             assert.strictEqual(view.getElementByIdList[3].element.style.display, 'inline');
             assert.strictEqual(view.getElementByIdList[4].fieldID, 'info-field');
             assert.strictEqual(view.getElementByIdList[4].element.style.height, '460px');
@@ -122,10 +127,11 @@ describe('GameSceneControllerTest', () => {
         
         it('Change to confirm scene.', () => {
             const scene = SceneType.CONFIRM;
+            const info = new MockPokemonInfo();
             const view = createMockView();
             const controller = createGameSceneController(view);
             
-            controller.changeScene(scene);
+            controller.changeScene(scene, info);
             
             assert.strictEqual(view.getElementByIdList.length, 0);
         });
