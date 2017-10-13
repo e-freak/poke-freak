@@ -6,7 +6,7 @@
 
 import Observable from '../../../util/observable';
 
-import ConfirmEvent from '../../../event/confirm-event';
+import ConfirmEvent from '../../event/confirm-event';
 import SceneType from './scene-type';
 import UserEvent from '../../../event/user-event';
 
