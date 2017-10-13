@@ -10,7 +10,7 @@ import BrowserAnnouncer from '../../announcer/browser-announcer';
 import GameEvent from '../../event/game-event';
 import GameMaster from '../../game-master';
 
-import ConfirmEvent from '../../../event/confirm-event';
+import ConfirmEvent from '../../event/confirm-event';
 import GameMenuController from './game-menu-controller';
 import GameSceneController from './game-scene-controller';
 import SamplePartyList from '../../sample-party-list';
