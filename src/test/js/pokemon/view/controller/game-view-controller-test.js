@@ -6,7 +6,7 @@ import assert from 'assert';
 
 import GameViewController from './game-view-controller';
 
-import ConfirmEvent from '../../../event/confirm-event';
+import ConfirmEvent from '../../event/confirm-event';
 import GameEvent from '../../event/game-event';
 import SceneType from './scene-type';
 import UserEvent from '../../../event/user-event';

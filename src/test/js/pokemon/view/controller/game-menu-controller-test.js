@@ -6,7 +6,7 @@ import assert from 'assert';
 
 import GameMenuController from './game-menu-controller';
 
-import ConfirmEvent from '../../../event/confirm-event';
+import ConfirmEvent from '../../event/confirm-event';
 import SceneType from './scene-type';
 
 import MockObserver from '../../../util/mock-observer';

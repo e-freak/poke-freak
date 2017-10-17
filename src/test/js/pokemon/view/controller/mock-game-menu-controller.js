@@ -4,7 +4,7 @@
 
 import Observable from '../../../util/observable';
 
-import ConfirmEvent from '../../../event/confirm-event';
+import ConfirmEvent from '../../event/confirm-event';
 
 
 
