@@ -15,6 +15,10 @@ export default class BrowserAnnouncer extends ConsoleAnnouncer {
         this._view = view;
     }
     
+    writeStrong(message) {
+        this._buffer.push(`<span class="strong">${message}</span>`);
+    }
+    
     _createMessageProcessor() {
         return (message) => {
             const textarea = this._view.getElementById('text-message');
@@ -42,10 +46,6 @@ export default class BrowserAnnouncer extends ConsoleAnnouncer {
     
     _writeBattleInfo(info, playerID) {
         // 何もしない
-    }
-    
-    _writeStrong(message) {
-        this._buffer.push(`<span class="strong">${message}</span>`);
     }
     
 }
