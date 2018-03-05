@@ -19,7 +19,7 @@ electron.app.on('window-all-closed', () => {
 });
 
 electron.app.on('ready', () => {
-    mainWindow = new electron.BrowserWindow({ width: 1024, height: 768, resizable: true });
+    mainWindow = new electron.BrowserWindow({ width: 1024, height: 800, resizable: true });
     mainWindow.loadURL(`file://${__dirname}/app/view/title.html`);
     mainWindow.on('closed', () => {
         mainWindow = null;

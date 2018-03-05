@@ -4,11 +4,7 @@
  * @author yuki
  */
 
-import packager from 'electron-packager';
-
-
-
-packager({
+require('electron-packager')({
     name: 'poke-freak',
     dir: '.',
     out: './bin',
@@ -17,9 +13,8 @@ packager({
     arch: 'ia32',
     overwrite: true,
     prune: true,
-    asar: true,
+    asar: false,
     ignore: 'bin|cache|src|.+\.bat|.+\.md|\.gitignore|gulpfile.*\.js|release\.js',
 }, (message = 'Done.') => {
     console.log(message);
 });
-

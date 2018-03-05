@@ -21,7 +21,7 @@
     "postcompile": "gulp browserify",
     "postcompile-stub": "gulp browserify",
     "pretest": "gulp ready-to-test",
-    "test": "mocha cache/test -r setup-unit-test.js -R dot --compilers js:babel-register --es_staging",
+    "test": "mocha cache/test -r setup-unit-test.js -R dot --require babel-register --es_staging",
     "precoverage": "gulp ready-to-coverage",
     "coverage": "cross-env NODE_ENV=test nyc --all npm run test",
     "clean": "gulp clean"
@@ -57,18 +57,18 @@
   "devDependencies": {
     "babel-core": "^6.25.0",
     "babel-plugin-istanbul": "^4.1.4",
-    "babel-preset-env": "^1.5.2",
+    "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
-    "browserify": "^14.4.0",
-    "cross-env": "^5.0.1",
+    "browserify": "^16.1.0",
+    "cross-env": "^5.1.3",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-mocha": "^4.3.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-mocha": "^5.0.0",
     "gulp-rename": "^1.2.2",
-    "jsdom": "^11.3.0",
-    "mocha": "^3.4.2",
-    "nyc": "^11.0.3",
+    "jsdom": "^11.6.2",
+    "mocha": "^5.0.1",
+    "nyc": "^11.5.0",
     "through2": "^2.0.3"
   }
 }
