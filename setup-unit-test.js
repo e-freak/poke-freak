@@ -1,8 +1,10 @@
 /**
  * setup-unit-test.js
+ * 
+ * @author yuki
  */
 
-import jsdom from 'jsdom';
+const jsdom = require('jsdom');
 
 
 

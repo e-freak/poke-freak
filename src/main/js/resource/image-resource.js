@@ -4,6 +4,8 @@
  * @author yuki
  */
 
+import fs from 'fs';
+
 
 
 class ImageResource {
@@ -33,15 +35,15 @@ class ImageResource {
             return this._pokemonImageTable[pokemonID].src;
         }
         else {
-            const imagePath = `../image/pokemon/${this._trimPokemonID(pokemonID)}.png`;
+            const imagePath = `image/pokemon/${this._trimPokemonID(pokemonID)}.png`;
             try {
-                system.statSync(imagePath);
-                this._pokemonImageTable[pokemonID] = this._createImageObject(imagePath);
-                return this._pokemonImageTable[pokemonID].src;
+                if (fs.statSync(`app/${imagePath}`).isFile()) {
+                    this._pokemonImageTable[pokemonID] = this._createImageObject(`../${imagePath}`);
+                    return this._pokemonImageTable[pokemonID].src;
+                }
             }
-            catch (e) {
-                return this.getDummyPokemonImage();
-            }
+            catch (e) {}
+            return this.getDummyPokemonImage();
         }
     }
     

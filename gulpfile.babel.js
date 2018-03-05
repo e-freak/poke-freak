@@ -6,12 +6,9 @@
 
 import gulp from 'gulp';
 import babel from 'gulp-babel';
-import mocha from 'gulp-mocha';
-import rename from 'gulp-rename';
+import webpack from 'webpack-stream';
 
 import remove from 'del';
-
-import browserify from './browserify';
 
 
 
@@ -60,7 +57,7 @@ gulp.task('compile-stub', [ 'compile' ], () => {
     );
 });
 
-gulp.task('ready-to-browserify', () => {
+gulp.task('ready-to-webpack', () => {
     return gulp.src(
         `${externalDir}/**/*.js`
     ).pipe(
@@ -68,14 +65,19 @@ gulp.task('ready-to-browserify', () => {
     );
 });
 
-gulp.task('browserify', [ 'ready-to-browserify' ], () => {
+gulp.task('webpack', [ 'ready-to-webpack' ], () => {
     return gulp.src(
         `${loaderSourceDir}/**/*.js`
     ).pipe(
-        browserify()
-    ).pipe(
-        rename({
-            extname: '.mix.js',
+        webpack({
+            target: 'node',
+            entry: {
+                title: `./${mainTargetDir}/loader/title-view-controller-loader.js`,
+                game : `./${mainTargetDir}/loader/game-view-controller-loader.js`,
+            },
+            output: {
+                filename: '[name]-view-controller-loader.mix.js',
+            },
         })
     ).pipe(
         gulp.dest(loaderTargetDir)
@@ -87,17 +89,6 @@ gulp.task('ready-to-test', [ 'clean-test' ], () => {
         [ `${mainSourceDir}/**/*.js`, `${testSourceDir}/**/*.js`, `${stubSourceDir}/**/*.js` ]
     ).pipe(
         gulp.dest(testTargetDir)
-    );
-});
-
-gulp.task('unit-test', [ 'ready-to-test' ], () => {
-    return gulp.src(
-        `${testTargetDir}/*.js`, { read: false }
-    ).pipe(
-        mocha({
-            compilers: 'js:babel-register',
-            reporter: 'dot',
-        })
     );
 });
 

@@ -18,8 +18,8 @@
   "scripts": {
     "compile": "gulp compile",
     "compile-stub": "gulp compile-stub",
-    "postcompile": "gulp browserify",
-    "postcompile-stub": "gulp browserify",
+    "postcompile": "gulp webpack",
+    "postcompile-stub": "gulp webpack",
     "pretest": "gulp ready-to-test",
     "test": "mocha cache/test -r setup-unit-test.js -R dot --require babel-register --es_staging",
     "precoverage": "gulp ready-to-coverage",
@@ -59,16 +59,14 @@
     "babel-plugin-istanbul": "^4.1.4",
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
-    "browserify": "^16.1.0",
     "cross-env": "^5.1.3",
     "del": "^3.0.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^7.0.1",
-    "gulp-mocha": "^5.0.0",
-    "gulp-rename": "^1.2.2",
     "jsdom": "^11.6.2",
     "mocha": "^5.0.1",
     "nyc": "^11.5.0",
-    "through2": "^2.0.3"
+    "through2": "^2.0.3",
+    "webpack-stream": "^4.0.2"
   }
 }
