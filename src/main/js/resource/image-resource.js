@@ -4,7 +4,7 @@
  * @author yuki
  */
 
-import fs from 'fs';
+import FileUtil from '../util/file-util';
 
 
 
@@ -31,19 +31,21 @@ class ImageResource {
     }
     
     getPokemonImage(pokemonID) {
-        if (pokemonID in this._pokemonImageTable) {
-            return this._pokemonImageTable[pokemonID].src;
+        if (!(pokemonID in this._pokemonImageTable)) {
+            this.preload(pokemonID);
         }
-        else {
-            const imagePath = `image/pokemon/${this._trimPokemonID(pokemonID)}.png`;
-            try {
-                if (fs.statSync(`app/${imagePath}`).isFile()) {
-                    this._pokemonImageTable[pokemonID] = this._createImageObject(`../${imagePath}`);
-                    return this._pokemonImageTable[pokemonID].src;
-                }
-            }
-            catch (e) {}
+        if (!(pokemonID in this._pokemonImageTable)) {
             return this.getDummyPokemonImage();
+        }
+        return this._pokemonImageTable[pokemonID].src;
+    }
+    
+    preload(pokemonID) {
+        if (!(pokemonID in this._pokemonImageTable)) {
+            const imagePath = `../image/pokemon/${this._trimPokemonID(pokemonID)}.png`;
+            if (FileUtil.isExist(imagePath.replace('..', 'app'))) {
+                this._pokemonImageTable[pokemonID] = this._createImageObject(imagePath);
+            }
         }
     }
     
@@ -59,4 +61,18 @@ class ImageResource {
     
 }
 
-export default new ImageResource();
+
+
+class ImageResourceSingleton {
+    
+    constructor() {
+        this._core = new ImageResource();
+    }
+    
+    getInstance() {
+        return this._core;
+    }
+    
+}
+
+export default new ImageResourceSingleton();

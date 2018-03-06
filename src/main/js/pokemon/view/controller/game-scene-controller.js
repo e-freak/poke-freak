@@ -80,15 +80,15 @@ export default class GameSceneController extends Observer {
                 this._view.getElementById(hpCountID).textContent = activePokemon.activeH;
             }
             this._view.getElementById(nameID).textContent = activePokemon.name;
-            this._view.getElementById(itemID).src = ImageResource.getItemImage(activePokemon.item);
+            this._view.getElementById(itemID).src = ImageResource.getInstance().getItemImage(activePokemon.item);
             this._view.getElementById(statusAilmentID).textContent = activePokemon.statusAilment.label;
             this._setPokemonElement(elementFieldID, activePokemon);
             const partyField = this._view.getAppendableField(partyFieldID);
             const className = leftSide ? 'player-pokemon icon-pokemon' : 'icon-pokemon';
             info.getParty(targetID).forEachSelected((pokemon) => {
-                partyField.appendChild(this._view.createImageTag(ImageResource.getPokemonImage(pokemon.pokemonID), className));
+                partyField.appendChild(this._view.createImageTag(ImageResource.getInstance().getPokemonImage(pokemon.pokemonID), className));
             });
-            this._view.getElementById(activePokemonIconID).src = ImageResource.getPokemonImage(activePokemon.pokemonID);
+            this._view.getElementById(activePokemonIconID).src = ImageResource.getInstance().getPokemonImage(activePokemon.pokemonID);
         });
     }
     
@@ -108,8 +108,8 @@ export default class GameSceneController extends Observer {
             const elementFieldID = `party-player-pokemon-element-${index}`;
             const skillNameFieldID = `party-player-pokemon-skill-name-${index}`;
             const skillPPFieldID = `party-player-pokemon-skill-pp-${index}`;
-            this._view.getElementById(imageID).src = ImageResource.getPokemonImage(pokemon.pokemonID);
-            this._view.getElementById(itemID).src = ImageResource.getItemImage(pokemon.item);
+            this._view.getElementById(imageID).src = ImageResource.getInstance().getPokemonImage(pokemon.pokemonID);
+            this._view.getElementById(itemID).src = ImageResource.getInstance().getItemImage(pokemon.item);
             this._view.getElementById(statusAilmentID).textContent = pokemon.statusAilment.label;
             this._setPokemonElement(elementFieldID, pokemon);
             setPokemonSkill(skillNameFieldID, skillPPFieldID, pokemon);
@@ -143,7 +143,7 @@ export default class GameSceneController extends Observer {
             this._view.getElementById(playerNameID).textContent = player.name;
             info.getParty(targetID).forEach((pokemon, index) => {
                 const imageID = `image-${playerLabel}-pokemon-${index}`;
-                this._view.getElementById(imageID).src = ImageResource.getPokemonImage(pokemon.pokemonID);
+                this._view.getElementById(imageID).src = ImageResource.getInstance().getPokemonImage(pokemon.pokemonID);
             });
         });
     }
@@ -227,10 +227,10 @@ export default class GameSceneController extends Observer {
         const statusAilmentID = `${playerLabel}-active-pokemon-status-ailment`;
         const elementFieldID = `${playerLabel}-active-pokemon-element`;
         this._view.getElementById(nameID).textContent = activePokemon.name;
-        this._view.getElementById(itemID).src = ImageResource.getItemImage(activePokemon.item);
+        this._view.getElementById(itemID).src = ImageResource.getInstance().getItemImage(activePokemon.item);
         this._view.getElementById(statusAilmentID).textContent = activePokemon.statusAilment.label;
         this._setPokemonElement(elementFieldID, activePokemon);
-        this._view.getElementById(activePokemonIconID).src = ImageResource.getPokemonImage(activePokemon.pokemonID);
+        this._view.getElementById(activePokemonIconID).src = ImageResource.getInstance().getPokemonImage(activePokemon.pokemonID);
         
         const percentage = Math.ceil(activePokemon.activeH / activePokemon.maxH * 100);
         this._view.getElementById(`${playerLabel}-active-pokemon-hp`).style.width = `${percentage}%`;

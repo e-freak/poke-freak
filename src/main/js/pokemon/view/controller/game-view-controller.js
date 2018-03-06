@@ -6,13 +6,18 @@
 
 import Observer from '../../../util/observer';
 
+import Action from '../../rule/action';
+import Automaton from '../../automaton/automaton';
 import BrowserAnnouncer from '../../announcer/browser-announcer';
+import DefaultAI from '../../automaton/simple-AI';
+import FileUtil from '../../../util/file-util';
 import GameEvent from '../../event/game-event';
 import GameMaster from '../../game-master';
 
 import ConfirmEvent from '../../event/confirm-event';
 import GameMenuController from './game-menu-controller';
 import GameSceneController from './game-scene-controller';
+import ImageResource from '../../../resource/image-resource';
 import SamplePartyList from '../../sample-party-list';
 import SceneType from './scene-type';
 import UserEvent from '../../../event/user-event';
@@ -23,24 +28,38 @@ export default class GameViewController extends Observer {
     
     constructor(view) {
         super();
+        this._announcer = this._createAnnouncer(view);
         this._scene = this._createSceneController(view);
         this._menu = this._createMenuController(view);
-        this._announcer = this._createAnnouncer(view);
         this._master = this._createGameMaster();
-        this._gameEvent = undefined;
-        this._menu.addObserver(this);
+        this._automaton = new Automaton();
+        this._gameEvent = 'NONE';
         this._master.addObserver(this);
         this._master.addObserver(this._scene);
         this._master.addObserver(this._announcer);
-        
-        this._opponentPokemonIndex = 0;
+        this._menu.addObserver(this);
+        this._playerResource = undefined;
+        this._opponentResource = undefined;
+    }
+    
+    close() {
+        this._master.end(true);
     }
     
     initialize() {
+        this._playerResource = SamplePartyList[0];
+        this._opponentResource = SamplePartyList[1];
+        const preload = (p) => { ImageResource.getInstance().preload(p.pokemonID) };
+        Object.values(this._playerResource).forEach(preload);
+        Object.values(this._opponentResource).forEach(preload);
+        
         this._scene.initialize();
         this._menu.initialize();
         this._master.initialize('プレイヤー', '対戦相手');
-        this._master.ready(SamplePartyList[0], SamplePartyList[1]);
+        this._shuffleList(SamplePartyList);
+        this._loadAI('app/ai/simple-AI.poke', this._master.OPPONENT_ID, this._opponentResource, this._playerResource);
+        
+        this._master.ready(this._playerResource, this._opponentResource);
         this._changeScene(SceneType.SELECT, true);
         this._scene.requestSelectedPokemonInfo(this._master.info.getParty(this._master.PLAYER_ID).sourcePokemonList);
     }
@@ -74,13 +93,13 @@ export default class GameViewController extends Observer {
             this._scene.requestSelectedPokemonInfo(this._master.info.getParty(this._master.PLAYER_ID).sourcePokemonList, param.value);
             break;
         case UserEvent.START_BATTLE:
-            this._master.select(this._master.OPPONENT_ID, [ 0, 1, 2 ]);
+            this._master.select(this._master.OPPONENT_ID, this._automaton.selectParty());
             this._master.select(this._master.PLAYER_ID, param.value);
             this._changeScene(SceneType.BATTLE);
             break;
         case UserEvent.SELECT_SKILL:
             this._master.skill(this._master.PLAYER_ID, param.value);
-            this._master.skill(this._master.OPPONENT_ID, 0);
+            this._opponentAction(this._automaton.selectAction(this._getOpponentActivePokemon().pokemonID));
             break;
         case UserEvent.SELECT_CHANGE:
             switch (this._gameEvent) {
@@ -98,7 +117,7 @@ export default class GameViewController extends Observer {
                 break;
             default:
                 this._master.change(this._master.PLAYER_ID, param.value);
-                this._master.skill(this._master.OPPONENT_ID, 0);
+                this._opponentAction(this._automaton.selectAction(this._getOpponentActivePokemon().pokemonID));
                 break;
             }
             break;
@@ -107,7 +126,7 @@ export default class GameViewController extends Observer {
             break;
         case UserEvent.SELECT_RESIGN_OK:
             this._master.resign(this._master.PLAYER_ID);
-            this._master.skill(this._master.OPPONENT_ID, 0);
+            this._opponentAction(this._automaton.selectAction(this._getOpponentActivePokemon().pokemonID));
             break;
         case GameEvent.CHANGE_BY_SKILL:
         case GameEvent.CHANGE_BY_BATON:
@@ -160,6 +179,56 @@ export default class GameViewController extends Observer {
     
     _createPartySelector() {
         return new PartySelector();
+    }
+    
+    _getOpponentActivePokemon() {
+        return this._master.info.getActivePokemon(this._master.OPPONENT_ID);
+    }
+    
+    _loadAI(sourceCodePath, playerID, playerResource, opponentResource) {
+        try {
+            const sourceCode = FileUtil.readText(sourceCodePath);
+            this._automaton.core = (0, eval)(sourceCode);
+        }
+        catch (e) {
+            this._automaton.core = new DefaultAI();
+        }
+        this._automaton.initialize(playerID.value, playerResource, opponentResource);
+    }
+    
+    _opponentAction(action) {
+        if (this._master.isClosed()) {
+            return;
+        }
+        switch (action.type) {
+        case Action.SKILL:
+            this._master.skill(this._master.OPPONENT_ID, action.target);
+            break;
+        case Action.CHANGE:
+            this._master.change(this._master.OPPONENT_ID, action.target);
+            break;
+        case Action.CHANGE_BY_BATON:
+            this._master.changeByBaton(this._master.OPPONENT_ID, action.target);
+            break;
+        case Action.CHANGE_BY_SKILL:
+            this._master.changeBySkill(this._master.OPPONENT_ID, action.target);
+            break;
+        case Action.NEXT:
+            this._master.next(this._master.OPPONENT_ID, action.target);
+            break;
+        default:
+            throw new Error(`Invalid action : ${action.type}`);
+        }
+    }
+    
+    _shuffleList(target) {
+        for (let n = target.length; n > 0; n--) {
+            const s = n - 1;
+            const t = Math.floor(Math.random() * n);
+            const temp = target[s];
+            target[s] = target[t];
+            target[t] = temp;
+        }
     }
     
 }
