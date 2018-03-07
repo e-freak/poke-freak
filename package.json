@@ -21,7 +21,7 @@
     "postcompile": "gulp webpack",
     "postcompile-stub": "gulp webpack",
     "pretest": "gulp ready-to-test",
-    "test": "mocha cache/test -r setup-unit-test.js -R dot --require babel-register --exit",
+    "test": "mocha cache/test -r setup-unit-test.js -R dot --require babel-register --exit --es_staging",
     "precoverage": "gulp ready-to-coverage",
     "coverage": "cross-env NODE_ENV=test nyc --all npm run test",
     "clean": "gulp clean"
