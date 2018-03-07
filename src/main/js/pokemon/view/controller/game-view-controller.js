@@ -13,12 +13,12 @@ import DefaultAI from '../../automaton/simple-AI';
 import FileUtil from '../../../util/file-util';
 import GameEvent from '../../event/game-event';
 import GameMaster from '../../game-master';
+import PartyResourceList from '../../automaton/party-resource-list';
 
 import ConfirmEvent from '../../event/confirm-event';
 import GameMenuController from './game-menu-controller';
 import GameSceneController from './game-scene-controller';
 import ImageResource from '../../../resource/image-resource';
-import SamplePartyList from '../../sample-party-list';
 import SceneType from './scene-type';
 import UserEvent from '../../../event/user-event';
 
@@ -47,8 +47,9 @@ export default class GameViewController extends Observer {
     }
     
     initialize() {
-        this._playerResource = SamplePartyList[0];
-        this._opponentResource = SamplePartyList[1];
+        this._shuffleList(PartyResourceList);
+        this._playerResource = PartyResourceList[0];
+        this._opponentResource = PartyResourceList[1];
         const preload = (p) => { ImageResource.getInstance().preload(p.pokemonID) };
         Object.values(this._playerResource).forEach(preload);
         Object.values(this._opponentResource).forEach(preload);
@@ -56,7 +57,6 @@ export default class GameViewController extends Observer {
         this._scene.initialize();
         this._menu.initialize();
         this._master.initialize('プレイヤー', '対戦相手');
-        this._shuffleList(SamplePartyList);
         this._loadAI('app/ai/simple-AI.poke', this._master.OPPONENT_ID, this._opponentResource, this._playerResource);
         
         this._master.ready(this._playerResource, this._opponentResource);

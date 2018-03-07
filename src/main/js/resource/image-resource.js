@@ -4,7 +4,7 @@
  * @author yuki
  */
 
-import FileUtil from '../util/file-util';
+import fs from 'fs';
 
 
 
@@ -43,7 +43,7 @@ class ImageResource {
     preload(pokemonID) {
         if (!(pokemonID in this._pokemonImageTable)) {
             const imagePath = `../image/pokemon/${this._trimPokemonID(pokemonID)}.png`;
-            if (FileUtil.isExist(imagePath.replace('..', 'app'))) {
+            if (fs.existsSync(imagePath.replace('..', 'app'))) {
                 this._pokemonImageTable[pokemonID] = this._createImageObject(imagePath);
             }
         }
