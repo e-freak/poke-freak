@@ -44,6 +44,10 @@ export default class GameMaster extends Observable {
     initialize(playerName, opponentName) {
     }
     
+    isClosed() {
+        return false;
+    }
+    
     next(playerID, targetPokemonIndex) {
     }
     

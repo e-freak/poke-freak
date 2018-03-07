@@ -23,6 +23,7 @@ export default class MockGameMaster extends Observable {
         this.closeCount = 0;
         this.endList = [];
         this.initializeList = [];
+        this.isClosedCount = 0;
         this.nextList = [];
         this.readyList = [];
         this.resignList = [];
@@ -56,6 +57,11 @@ export default class MockGameMaster extends Observable {
     
     initialize(playerName, opponentName) {
         this.initializeList.push({ playerName: playerName, opponentName: opponentName });
+    }
+    
+    isClosed() {
+        this.isClosedCount++;
+        return false;
     }
     
     next(playerID, targetPokemonIndex) {

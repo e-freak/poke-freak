@@ -6,11 +6,11 @@
 
 import Observer from '../../../util/observer';
 
-import Action from '../../rule/action';
+import fs from 'fs';
+
 import Automaton from '../../automaton/automaton';
 import BrowserAnnouncer from '../../announcer/browser-announcer';
 import DefaultAI from '../../automaton/simple-AI';
-import FileUtil from '../../../util/file-util';
 import GameEvent from '../../event/game-event';
 import GameMaster from '../../game-master';
 import PartyResourceList from '../../automaton/party-resource-list';
@@ -104,15 +104,15 @@ export default class GameViewController extends Observer {
         case UserEvent.SELECT_CHANGE:
             switch (this._gameEvent) {
             case GameEvent.CHANGE_BY_SKILL:
-                this._gameEvent = undefined;
+                this._gameEvent = 'NONE';
                 this._master.changeBySkill(this._master.PLAYER_ID, param.value);
                 break;
             case GameEvent.CHANGE_BY_BATON:
-                this._gameEvent = undefined;
+                this._gameEvent = 'NONE';
                 this._master.changeByBaton(this._master.PLAYER_ID, param.value);
                 break;
             case GameEvent.CHANGE_FOR_NEXT:
-                this._gameEvent = undefined;
+                this._gameEvent = 'NONE';
                 this._master.next(this._master.PLAYER_ID, param.value);
                 break;
             default:
@@ -187,7 +187,7 @@ export default class GameViewController extends Observer {
     
     _loadAI(sourceCodePath, playerID, playerResource, opponentResource) {
         try {
-            const sourceCode = FileUtil.readText(sourceCodePath);
+            const sourceCode = fs.readFileSync(sourceCodePath);
             this._automaton.core = (0, eval)(sourceCode);
         }
         catch (e) {
@@ -201,19 +201,19 @@ export default class GameViewController extends Observer {
             return;
         }
         switch (action.type) {
-        case Action.SKILL:
+        case 'SKILL':
             this._master.skill(this._master.OPPONENT_ID, action.target);
             break;
-        case Action.CHANGE:
+        case 'CHANGE':
             this._master.change(this._master.OPPONENT_ID, action.target);
             break;
-        case Action.CHANGE_BY_BATON:
+        case 'CHANGE_BY_BATON':
             this._master.changeByBaton(this._master.OPPONENT_ID, action.target);
             break;
-        case Action.CHANGE_BY_SKILL:
+        case 'CHANGE_BY_SKILL':
             this._master.changeBySkill(this._master.OPPONENT_ID, action.target);
             break;
-        case Action.NEXT:
+        case 'NEXT':
             this._master.next(this._master.OPPONENT_ID, action.target);
             break;
         default:
